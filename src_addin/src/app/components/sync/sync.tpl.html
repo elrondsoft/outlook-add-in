@@ -1,0 +1,26 @@
+<div class="starter-template">
+    <h2>Synchronization</h2>
+</div>
+<p></p>
+<div class="card">
+    <div class="card-header">
+        Synchronization status <span ng-show="$ctrl.idLoading">Loading ...</span>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-danger" role="alert" ng-if="$ctrl.isError">
+            {{$ctrl.errorText}}
+        </div>
+
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <button type="button" class="btn" ng-disabled="$ctrl.idLocked" ng-class="!$ctrl.isSyncEnabled ? 'btn-danger' : 'btn-secondary'" ng-click="$ctrl.disableSync()">
+                <div ng-if="!$ctrl.isSyncEnabled">Disabled</div>
+                <div ng-if="$ctrl.isSyncEnabled">Disable</div>
+            </button>
+
+            <button type="button" class="btn" ng-disabled="$ctrl.idLocked" ng-class="$ctrl.isSyncEnabled ? 'btn-success' : 'btn-secondary'" ng-click="$ctrl.enableSync()">
+                <div ng-if="$ctrl.isSyncEnabled">Enabled</div>
+                <div ng-if="!$ctrl.isSyncEnabled">Enable</div>
+            </button>
+        </div>
+    </div>
+</div>

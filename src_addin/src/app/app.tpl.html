@@ -1,0 +1,39 @@
+<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+    <a class="navbar-brand" href="#">Helios</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+            aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a href="" class="nav-link "
+                   ng-click="navigate('hsAuth')"
+                   ng-class="{active: customRouting.hsAuth}">Auth</i></a>
+            </li>
+            <li class="nav-item">
+                <a href="" class="nav-link"
+                   ng-click="navigate('hsSync')"
+                   ng-class="{active: customRouting.hsSync}"
+                   ng-if="$ctrl.heliosUserEntityId && $ctrl.microsoftToken"
+
+                >Sync</a>
+            </li>
+            <!--<li class="nav-item">-->
+                <!--<a href="" class="nav-link disabled"-->
+
+                   <!--ng-click="navigate('hsOptions')"-->
+                   <!--ng-class="{active: customRouting.hsOptions}">Options</a>-->
+            <!--</li>-->
+        </ul>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <hs-auth helios-user-entity-id="$ctrl.heliosUserEntityId" microsoft-token="$ctrl.microsoftToken" ng-if="customRouting.hsAuth"></hs-auth>
+    <hs-sync ng-if="customRouting.hsSync"></hs-sync>
+    <!--<hs-options ng-if="customRouting.hsOptions"></hs-options>-->
+    <!--<ng-outlet></ng-outlet>-->
+</div>
+
+

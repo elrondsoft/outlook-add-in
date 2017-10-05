@@ -1,0 +1,20 @@
+<div class="card">
+    <div class="card-header">
+        <b class="text-primary">Outlook</b> Auth
+    </div>
+    <div class="card-body">
+        <p ng-if="!$ctrl.microsoftToken">Authentication with OAuth</p>
+
+        <div class="alert alert-danger" role="alert" ng-if="$ctrl.isError">
+            {{$ctrl.errorText}}
+        </div>
+
+        <div class="alert alert-success" role="alert" ng-if="$ctrl.microsoftToken">
+            Successfully Authorized
+        </div>
+
+        <button ng-if="!$ctrl.isLoading && !$ctrl.microsoftToken" class="btn btn-primary" ng-click="$ctrl.authOutlook()">Login</button>
+        <button ng-if="$ctrl.isLoading" class="btn btn-primary" disabled>Login <i class="fa fa-spinner fa-spin fa-1x fa-fw"></i></button>
+        <button class="btn btn-warning" ng-click="$ctrl.logoutOutlook()" ng-if="$ctrl.microsoftToken">Logout</button>
+    </div>
+</div>
