@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using Helios.Api.Controllers;
 using Helios.Api.Domain.Dtos.Api;
 using Helios.Api.Domain.Dtos.Helios;
 using Helios.Api.Domain.Dtos.Microsoft;
@@ -11,37 +8,53 @@ using Helios.Api.Domain.Entities.MainModule;
 using Helios.Api.EFContext;
 using Helios.Api.Utils.Api.Helios;
 using Helios.Api.Utils.Api.Microsoft;
-using Newtonsoft.Json;
+using Helios.Api.Utils.Encryption.Providers;
+using Microsoft.Extensions.Configuration;
 
 namespace Helios.Api.Domain.DomainServices
 {
     public class AuthDomainService
     {
+        private readonly IConfigurationRoot _configuration;
+
+        public AuthDomainService()
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json");
+
+            _configuration = builder.Build();
+        }
+
         public HeliosAuthResponceDto HeliosAuth(HeliosAuthRequestDto request)
         {
             var responce = new HeliosAuthResponceDto();
             var db = new HeliosDbContext();
-
-            var user = db.Users.FirstOrDefault(r => r.HeliosLogin == request.Login && r.HeliosPassword == request.Password);
+            
+            var user = db.Users.FirstOrDefault(r => r.HeliosLogin == request.Login);
             if (user != null)
             {
                 responce.EntityId = user.EntityId;
                 return responce;
             }
 
-            var newUser = new User() { HeliosLogin = request.Login, HeliosPassword = request.Password };
+            var passwordHash = AesStringEncryptor.EncryptString(request.Password, _configuration["AesKey"]);
+            var newUser = new User() { HeliosLogin = request.Login, HeliosPassword = passwordHash };
             var heliosApi = new HeliosApi(newUser, false);
 
-            HeliosTokenResponceDto heliosTokenResponceDto = heliosApi.RetrieveToken().Result;
-
+            var heliosTokenResponceDto = heliosApi.RetrieveToken().Result;
             if (heliosTokenResponceDto.AccessToken == null)
             {
                 responce.Error = "Wrong Credentials!";
                 return responce;
             }
             newUser.HeliosToken = heliosTokenResponceDto.AccessToken;
+
+            heliosApi = new HeliosApi(newUser, true);
+            var entityIdResponceDto = heliosApi.RetrieveUserEntityId().Result;
+            newUser.EntityId = entityIdResponceDto.UserEntityId;
+            newUser.ApiKey = entityIdResponceDto.ApiKey;
             
-            newUser.EntityId = heliosApi.RetrieveUserEntityId().Result.UserEntityId;
             responce.EntityId = newUser.EntityId;
 
             db.Users.Add(newUser);

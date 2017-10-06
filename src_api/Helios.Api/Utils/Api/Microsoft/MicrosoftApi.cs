@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Helios.Api.Domain.Dtos.Microsoft;
 using Helios.Api.Domain.Dtos.Microsoft.Api;
-using Helios.Api.Domain.Entities;
 using Helios.Api.Domain.Entities.MainModule;
 using Helios.Api.Domain.Entities.PluginModule.Microsoft;
 using Newtonsoft.Json;
@@ -60,10 +59,13 @@ namespace Helios.Api.Utils.Api.Microsoft
             var client = new RestClient("https://login.microsoftonline.com/common/oauth2/v2.0/token");
             var request = new RestRequest(Method.POST);
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
-            request.AddParameter("application/x-www-form-urlencoded", $"client_id={_clientId}&scope=https%3A%2F%2Fgraph.microsoft.com%2Fmail.read&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth.html&grant_type=authorization_code&client_secret=scY9Ymn7jtGWdfvWiiedUmq&code={code}", ParameterType.RequestBody);
+            // Local
+            // request.AddParameter("application/x-www-form-urlencoded", $"client_id={_clientId}&scope=https%3A%2F%2Fgraph.microsoft.com%2Fmail.read&redirect_uri=https%3A%2F%2Flocalhost%3A3000%2Fauth.html&grant_type=authorization_code&client_secret=scY9Ymn7jtGWdfvWiiedUmq&code={code}", ParameterType.RequestBody);
+            // Remote
+            request.AddParameter("application/x-www-form-urlencoded", $"client_id={_clientId}" + "&scope=https://graph.microsoft.com/mail.read&redirect_uri=https://dev-helios-addin.azurewebsites.net/auth.html&grant_type=authorization_code&client_secret=scY9Ymn7jtGWdfvWiiedUmq&code=" + $"{code}", ParameterType.RequestBody);
 
             var tcs = new TaskCompletionSource<MicrosoftRefreshTokenByCodeDto>();
-            
+
             client.ExecuteAsync(request, response =>
             {
                 tcs.SetResult(JsonConvert.DeserializeObject<MicrosoftRefreshTokenByCodeDto>(response.Content));
@@ -72,17 +74,17 @@ namespace Helios.Api.Utils.Api.Microsoft
             return tcs.Task;
         }
 
-        public Task<string> UpdateRefreshToken()
+        public Task<MicrosoftRefreshTokenUpdateResponceDto> UpdateRefreshToken()
         {
             var client = new RestClient("https://login.microsoftonline.com/common/oauth2/v2.0/token");
             var request = new RestRequest(Method.POST);
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
             request.AddParameter("application/x-www-form-urlencoded", $"client_id=cd1488fa-849d-4f93-8558-f85ca902cf61&scope=https%3A%2F%2Fgraph.microsoft.com%2Fmail.read&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth.html&grant_type=refresh_token&client_secret=scY9Ymn7jtGWdfvWiiedUmq&refresh_token={_user.MicrosoftRefreshToken}", ParameterType.RequestBody);
 
-            var tcs = new TaskCompletionSource<string>();
+            var tcs = new TaskCompletionSource<MicrosoftRefreshTokenUpdateResponceDto>();
             client.ExecuteAsync(request, response =>
             {
-                tcs.SetResult(response.Content);
+                tcs.SetResult(JsonConvert.DeserializeObject<MicrosoftRefreshTokenUpdateResponceDto>(response.Content));
             });
 
             return tcs.Task;
@@ -262,7 +264,7 @@ namespace Helios.Api.Utils.Api.Microsoft
         }
 
         #endregion
-        
+
         #region Tasks
 
         public Task<string> CreateTask(string folderId, OutlookTask task)

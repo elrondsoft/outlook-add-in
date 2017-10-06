@@ -9,6 +9,8 @@
                     var microsoft_code = url.searchParams.get("code");
 
                     if (microsoft_code) {
+
+                        debugger;
                         $window.localStorage.setItem('microsoft_code', microsoft_code);
                         $interval.cancel(interval);
                         $window.close();

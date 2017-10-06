@@ -1,5 +1,4 @@
-﻿using Helios.Api.Domain.Entities;
-using Helios.Api.Domain.Entities.MainModule;
+﻿using Helios.Api.Domain.Entities.MainModule;
 using Microsoft.EntityFrameworkCore;
 
 namespace Helios.Api.EFContext

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Helios.Api.Domain.Entities.MainModule
+﻿namespace Helios.Api.Domain.Entities.MainModule
 {
     public class User
     {

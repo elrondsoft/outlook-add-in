@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Helios.Api.Domain.Dtos.Api
+﻿namespace Helios.Api.Domain.Dtos.Api
 {
     public class SyncStatusResponceDto
     {

@@ -55,10 +55,7 @@ namespace Helios.Tests.Synchronization
 
         
 
-        public Task<string> UpdateRefreshToken()
-        {
-            throw new NotImplementedException();
-        }
+        
 
         public Task<string> CreateCalendar(string calendarName)
         {
@@ -144,6 +141,11 @@ namespace Helios.Tests.Synchronization
         }
 
         public Task<MicrosoftRefreshTokenByCodeDto> GetRefreshTokenByCode(string code)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<MicrosoftRefreshTokenUpdateResponceDto> UpdateRefreshToken()
         {
             throw new NotImplementedException();
         }

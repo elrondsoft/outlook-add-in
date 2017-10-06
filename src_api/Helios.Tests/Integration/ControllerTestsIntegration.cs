@@ -26,14 +26,5 @@ namespace Helios.Tests.Integration
         {
             new ScheduleDomainService().SynchronizeAll();
         }
-
-        [Test]
-        // [Ignore("Real Http")]
-        public void CreateTasksFolder__ShouldWork()
-        {
-            var user = new HeliosDbContext().Users.FirstOrDefault(r => r.Id == 1);
-            var microsoftApi = new MicrosoftApi(user, true);
-            // var calendarId = new TasksFolderHelper(microsoftApi).CreateHeliosTasksFolderIfNotExists("Helios");
-        }
     }
 }

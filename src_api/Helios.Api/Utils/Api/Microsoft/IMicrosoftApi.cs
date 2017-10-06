@@ -7,7 +7,7 @@ namespace Helios.Api.Utils.Api.Microsoft
     public interface IMicrosoftApi
     {
         Task<MicrosoftRefreshTokenByCodeDto> GetRefreshTokenByCode(string code);
-        Task<string> UpdateRefreshToken();
+        Task<MicrosoftRefreshTokenUpdateResponceDto> UpdateRefreshToken();
 
         Task<string> CreateCalendar(string calendarName);
         Task<string> RetrieveCalendars();
