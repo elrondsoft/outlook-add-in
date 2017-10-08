@@ -12,6 +12,6 @@ namespace Helios.Api.Domain.Dtos.Microsoft.Api.Tasks
         [JsonProperty("@odata.context")]
         public string Context { get; set; }
         [JsonProperty("value")]
-        public IList<OutlookTask> Tasks { get; set; }
+        public IList<OutlookTask> Value { get; set; }
     }
 }

@@ -10,10 +10,10 @@ namespace Helios.Api.Utils.Helpers.Task
         public static bool TasksAreEqual(HeliosTask heliosEvent, OutlookTask outlookEvent)
         {
             // TODO: add datetime to compare
-            if (heliosEvent.Title == outlookEvent.Subject && heliosEvent.Description == outlookEvent.Body.Content)
-            {
-                return true;
-            }
+            //if (heliosEvent.Title == outlookEvent.Subject && heliosEvent.Description == outlookEvent.Body.Content)
+            //{
+            //    return true;
+            //}
             return false;
         }
 

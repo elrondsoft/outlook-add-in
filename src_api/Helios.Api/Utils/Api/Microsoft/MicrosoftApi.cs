@@ -31,13 +31,13 @@ namespace Helios.Api.Utils.Api.Microsoft
             //_configuration = new ConfigurationBuilder()
             //    .SetBasePath(Directory.GetCurrentDirectory())
             //    .AddJsonFile("appsettings.json").Build();
-            
+
             _user = user;
             _clientId = "cd1488fa-849d-4f93-8558-f85ca902cf61";
             _clientSecret = "scY9Ymn7jtGWdfvWiiedUmq";
             _redirectUrl = "https://dev-helios-addin.azurewebsites.net/auth.html";
             _redirectUrl = "http://localhost:3000/auth.html";
-            
+
             if (isTokenNeeded)
             {
                 CheckTokenExpiration();
@@ -325,15 +325,27 @@ namespace Helios.Api.Utils.Api.Microsoft
             client.ExecuteAsync(request, response =>
             {
                 var dto = JsonConvert.DeserializeObject<MicrosoftTasksRootDto>(response.Content);
-                tcs.SetResult(dto.Tasks);
+                tcs.SetResult(dto.Value);
             });
 
             return tcs.Task;
         }
 
-        public Task<string> UpdateTask(OutlookTask task)
+        public Task<OutlookTask> UpdateTask(OutlookTask task)
         {
-            throw new NotImplementedException();
+            var client = new RestClient("https://graph.microsoft.com/beta/me/outlook/tasks('" + task.Id + "')");
+            var request = new RestRequest(Method.PATCH);
+            request.AddHeader("content-type", "application/json");
+            request.AddHeader("authorization", $"Bearer {_user.MicrosoftToken}");
+            request.AddParameter("application/json", JsonConvert.SerializeObject(task), ParameterType.RequestBody);
+
+            var tcs = new TaskCompletionSource<OutlookTask>();
+            client.ExecuteAsync(request, response =>
+            {
+                tcs.SetResult(JsonConvert.DeserializeObject<OutlookTask>(response.Content));
+            });
+
+            return tcs.Task;
         }
 
         public Task<string> DeleteTask(string taskId)

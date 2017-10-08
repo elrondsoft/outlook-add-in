@@ -13,15 +13,21 @@ namespace Helios.Tests.Integration
     [TestFixture]
     public sealed class HeliosApiIntegrationTests
     {
+        private readonly User _user;
+        readonly HeliosApi _heliosApi;
+        public HeliosApiIntegrationTests()
+        {
+            _user = new HeliosDbContext().Users.FirstOrDefault(r => r.HeliosLogin == "outlookStefan");
+            _heliosApi = new HeliosApi(_user, true);
+        }
+
         #region User
 
         [Test]
-        // [Ignore("Real Http")]
+        [Ignore("Real Http")]
         public void RetrieveToken__ShouldWork()
         {
-            var user = new User() { HeliosLogin = "outlookStefan", HeliosPassword = "!Ab123456" };
-            var heliosApi = new HeliosApi(user, false);
-            var result = heliosApi.RetrieveToken().Result;
+            var result = _heliosApi.RetrieveToken().Result;
 
             if (result.AccessToken == null)
             {
@@ -35,10 +41,7 @@ namespace Helios.Tests.Integration
         [Ignore("Real Http")]
         public void RetrieveUserEntityId__ShouldWork()
         {
-            var user = new HeliosDbContext().Users.FirstOrDefault(r => r.Id == 1);
-            var heliosApi = new HeliosApi(user, false);
-
-            var result = heliosApi.RetrieveUserEntityId().Result;
+            var result = _heliosApi.RetrieveUserEntityId().Result;
 
             if (result.UserEntityId == null)
             {
@@ -56,10 +59,7 @@ namespace Helios.Tests.Integration
         [Ignore("Real Http")]
         public void RetrieveTasks_ShouldWork()
         {
-            var user = new HeliosDbContext().Users.FirstOrDefault(r => r.HeliosLogin == "outlookStefan");
-            var heliosApi = new HeliosApi(user, true);
-
-            var list = heliosApi.RetrieveTasks().Result;
+            var list = _heliosApi.RetrieveTasks().Result;
             Console.WriteLine($"result = {JsonConvert.SerializeObject(list)}");
         }
 
@@ -67,21 +67,18 @@ namespace Helios.Tests.Integration
         [Ignore("Real Http")]
         public void CreateTask_ShouldWork()
         {
-            var user = new HeliosDbContext().Users.FirstOrDefault(r => r.HeliosLogin == "outlookStefan");
-            var heliosApi = new HeliosApi(user, true);
-
             var testTask = new HeliosTask()
             {
                 Title = "test-task-25",
                 Description = "test-task-25",
                 DueDate = DateTime.Now,
                 OriginatorId = "6120C583-B849-46FD-8FCE-6F3EDED245C7",
-                AssignedTo = user.ApiKey,
+                AssignedTo = _user.ApiKey,
                 Priority = "Low",
-                AuthorId = user.ApiKey
+                AuthorId = _user.ApiKey
             };
 
-            var result = heliosApi.CreateTask(testTask);
+            var result = _heliosApi.CreateTask(testTask);
 
             Assert.AreEqual(true, result.IsCompleted);
             Console.WriteLine($"result = {JsonConvert.SerializeObject(result)}");
@@ -91,27 +88,23 @@ namespace Helios.Tests.Integration
         [Ignore("Real Http")]
         public void UpdateTask_ShouldWork()
         {
-            var user = new HeliosDbContext().Users.FirstOrDefault(r => r.HeliosLogin == "outlookStefan");
-            var heliosApi = new HeliosApi(user, true);
-
             var testTask = new HeliosTaskToUpdate()
             {
                 Id = "e8919c2d-a0c9-4151-8cf0-84243edbd4d0",
                 Title = "test-task-29",
                 Description = "test-task-29",
                 DueDate = DateTime.Now,
-                AssignedTo = user.ApiKey,
+                AssignedTo = _user.ApiKey,
                 Priority = "Normal",
                 OriginatorId = "6120C583-B849-46FD-8FCE-6F3EDED245C7",
-                Executor = user.ApiKey
+                Executor = _user.ApiKey
             };
 
-            var result = heliosApi.UpdateTask(testTask);
+            var result = _heliosApi.UpdateTask(testTask);
 
             Assert.AreEqual(true, result.IsCompleted);
             Console.WriteLine(JsonConvert.SerializeObject(result.IsCompleted));
         }
-
 
         #endregion
 
