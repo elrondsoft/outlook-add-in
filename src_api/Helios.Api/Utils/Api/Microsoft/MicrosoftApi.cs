@@ -1,13 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.IO;
 using System.Threading.Tasks;
 using Helios.Api.Domain.Dtos.Microsoft;
 using Helios.Api.Domain.Dtos.Microsoft.Api;
-using Helios.Api.Domain.Entities;
+using Helios.Api.Domain.Dtos.Microsoft.Api.Tasks;
 using Helios.Api.Domain.Entities.MainModule;
+using Helios.Api.Domain.Entities.PluginModule.Helios;
 using Helios.Api.Domain.Entities.PluginModule.Microsoft;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
+using RestSharp.Extensions.MonoHttp;
 
 namespace Helios.Api.Utils.Api.Microsoft
 {
@@ -15,11 +22,22 @@ namespace Helios.Api.Utils.Api.Microsoft
     {
         private readonly User _user;
         private readonly string _clientId;
+        private readonly string _clientSecret;
+        private readonly string _redirectUrl;
+        private readonly IConfigurationRoot _configuration;
 
         public MicrosoftApi(User user, bool isTokenNeeded)
         {
+            //_configuration = new ConfigurationBuilder()
+            //    .SetBasePath(Directory.GetCurrentDirectory())
+            //    .AddJsonFile("appsettings.json").Build();
+
             _user = user;
             _clientId = "cd1488fa-849d-4f93-8558-f85ca902cf61";
+            _clientSecret = "scY9Ymn7jtGWdfvWiiedUmq";
+            _redirectUrl = "https://dev-helios-addin.azurewebsites.net/auth.html";
+            _redirectUrl = "http://localhost:3000/auth.html";
+
             if (isTokenNeeded)
             {
                 CheckTokenExpiration();
@@ -60,10 +78,19 @@ namespace Helios.Api.Utils.Api.Microsoft
             var client = new RestClient("https://login.microsoftonline.com/common/oauth2/v2.0/token");
             var request = new RestRequest(Method.POST);
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
-            request.AddParameter("application/x-www-form-urlencoded", $"client_id={_clientId}&scope=https%3A%2F%2Fgraph.microsoft.com%2Fmail.read&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth.html&grant_type=authorization_code&client_secret=scY9Ymn7jtGWdfvWiiedUmq&code={code}", ParameterType.RequestBody);
+
+            var qb = new QueryBuilder();
+            qb.Add("client_id", _clientId);
+            qb.Add("redirect_uri", _redirectUrl);
+            qb.Add("grant_type", "authorization_code");
+            qb.Add("client_secret", _clientSecret);
+            qb.Add("code", code);
+            var query = qb.ToQueryString().ToString().Substring(1);
+
+            request.AddParameter("application/x-www-form-urlencoded", query, ParameterType.RequestBody);
 
             var tcs = new TaskCompletionSource<MicrosoftRefreshTokenByCodeDto>();
-            
+
             client.ExecuteAsync(request, response =>
             {
                 tcs.SetResult(JsonConvert.DeserializeObject<MicrosoftRefreshTokenByCodeDto>(response.Content));
@@ -72,17 +99,17 @@ namespace Helios.Api.Utils.Api.Microsoft
             return tcs.Task;
         }
 
-        public Task<string> UpdateRefreshToken()
+        public Task<MicrosoftRefreshTokenUpdateResponceDto> UpdateRefreshToken()
         {
             var client = new RestClient("https://login.microsoftonline.com/common/oauth2/v2.0/token");
             var request = new RestRequest(Method.POST);
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
             request.AddParameter("application/x-www-form-urlencoded", $"client_id=cd1488fa-849d-4f93-8558-f85ca902cf61&scope=https%3A%2F%2Fgraph.microsoft.com%2Fmail.read&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth.html&grant_type=refresh_token&client_secret=scY9Ymn7jtGWdfvWiiedUmq&refresh_token={_user.MicrosoftRefreshToken}", ParameterType.RequestBody);
 
-            var tcs = new TaskCompletionSource<string>();
+            var tcs = new TaskCompletionSource<MicrosoftRefreshTokenUpdateResponceDto>();
             client.ExecuteAsync(request, response =>
             {
-                tcs.SetResult(response.Content);
+                tcs.SetResult(JsonConvert.DeserializeObject<MicrosoftRefreshTokenUpdateResponceDto>(response.Content));
             });
 
             return tcs.Task;
@@ -262,10 +289,10 @@ namespace Helios.Api.Utils.Api.Microsoft
         }
 
         #endregion
-        
+
         #region Tasks
 
-        public Task<string> CreateTask(string folderId, OutlookTask task)
+        public Task<OutlookTask> CreateTask(string folderId, OutlookTask task)
         {
             CheckTokenExpiration();
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(task);
@@ -277,16 +304,16 @@ namespace Helios.Api.Utils.Api.Microsoft
             request.AddHeader("authorization", $"Bearer {_user.MicrosoftToken}");
             request.AddParameter("application/json", json, ParameterType.RequestBody);
 
-            var tcs = new TaskCompletionSource<string>();
+            var tcs = new TaskCompletionSource<OutlookTask>();
             client.ExecuteAsync(request, response =>
             {
-                tcs.SetResult(response.Content);
+                tcs.SetResult(JsonConvert.DeserializeObject<OutlookTask>(response.Content));
             });
 
             return tcs.Task;
         }
 
-        public Task<string> RetrieveTasks(string folderId)
+        public Task<IList<OutlookTask>> RetrieveTasks(string folderId)
         {
             CheckTokenExpiration();
             var client = new RestClient("https://graph.microsoft.com/beta/me/outlook/taskFolders/" + folderId + "/tasks");
@@ -294,18 +321,31 @@ namespace Helios.Api.Utils.Api.Microsoft
             request.AddHeader("cache-control", "no-cache");
             request.AddHeader("authorization", $"Bearer {_user.MicrosoftToken}");
 
-            var tcs = new TaskCompletionSource<string>();
+            var tcs = new TaskCompletionSource<IList<OutlookTask>>();
             client.ExecuteAsync(request, response =>
             {
-                tcs.SetResult(response.Content);
+                var dto = JsonConvert.DeserializeObject<MicrosoftTasksRootDto>(response.Content);
+                tcs.SetResult(dto.Value);
             });
 
             return tcs.Task;
         }
 
-        public Task<string> UpdateTask(OutlookTask task)
+        public Task<OutlookTask> UpdateTask(OutlookTask task)
         {
-            throw new NotImplementedException();
+            var client = new RestClient("https://graph.microsoft.com/beta/me/outlook/tasks('" + task.Id + "')");
+            var request = new RestRequest(Method.PATCH);
+            request.AddHeader("content-type", "application/json");
+            request.AddHeader("authorization", $"Bearer {_user.MicrosoftToken}");
+            request.AddParameter("application/json", JsonConvert.SerializeObject(task), ParameterType.RequestBody);
+
+            var tcs = new TaskCompletionSource<OutlookTask>();
+            client.ExecuteAsync(request, response =>
+            {
+                tcs.SetResult(JsonConvert.DeserializeObject<OutlookTask>(response.Content));
+            });
+
+            return tcs.Task;
         }
 
         public Task<string> DeleteTask(string taskId)

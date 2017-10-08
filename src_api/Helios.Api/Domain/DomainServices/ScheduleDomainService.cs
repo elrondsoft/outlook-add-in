@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Helios.Api.Domain.Dtos.Helios;
 using Helios.Api.Domain.Dtos.Microsoft;
 using Helios.Api.Domain.Entities.PluginModule.Helios;
 using Helios.Api.Domain.Entities.PluginModule.Microsoft;
@@ -46,7 +45,7 @@ namespace Helios.Api.Domain.DomainServices
                 eventsHash = syncService.SynchronizeOutlookEvents(calendarId, eventsHash, eventsComparerResult);
 
                 user.EventsSyncHash = JsonConvert.SerializeObject(eventsHash);
-
+                
                 /* Tasks  */
                 var folderId = new TasksFolderHelper(microsoftApi).CreateHeliosTasksFolderIfNotExists("Helios");
                 var tasksHash = new EventsHash(user).CreateEventsHashIfNotExists();
@@ -73,13 +72,11 @@ namespace Helios.Api.Domain.DomainServices
             {
                 /* Microsoft */
                 var microsoftApi = new MicrosoftApi(user, false);
-                var responce = microsoftApi.UpdateRefreshToken().Result;
-
-                var microsoftResponceDto = JsonConvert.DeserializeObject<MicrosoftRefreshTokenUpdateResponceDto>(responce);
-                user.MicrosoftToken = microsoftResponceDto.access_token;
+                user.MicrosoftToken = microsoftApi.UpdateRefreshToken().Result.access_token;
 
                 /* Helios */
-                throw new NotImplementedException();
+                var heliosApi = new HeliosApi(user, false);
+                user.HeliosToken = heliosApi.RetrieveToken().Result.AccessToken;
             }
 
             db.SaveChanges();

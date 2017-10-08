@@ -8,8 +8,8 @@ using Helios.Api.EFContext;
 namespace Helios.Api.Migrations
 {
     [DbContext(typeof(HeliosDbContext))]
-    [Migration("20170926154758_added-entityId")]
-    partial class addedentityId
+    [Migration("20171008164659_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -17,10 +17,12 @@ namespace Helios.Api.Migrations
                 .HasAnnotation("ProductVersion", "1.1.2")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Helios.Api.Domain.Entities.User", b =>
+            modelBuilder.Entity("Helios.Api.Domain.Entities.MainModule.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<string>("ApiKey");
 
                     b.Property<string>("EntityId");
 

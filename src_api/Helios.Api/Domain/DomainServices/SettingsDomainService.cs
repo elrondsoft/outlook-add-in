@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Helios.Api.Controllers;
 using Helios.Api.Domain.Dtos.Api;
 using Helios.Api.EFContext;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Helios.Api.Domain.DomainServices
 {

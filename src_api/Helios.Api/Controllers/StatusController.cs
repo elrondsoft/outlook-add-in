@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 
 namespace Helios.Api.Controllers
@@ -16,7 +18,7 @@ namespace Helios.Api.Controllers
             response["version"] = Version();
             response["configuration"] = ConfigurationReleaseOrDebug();
             response["utc"] = DateTime.UtcNow;
-
+            
             return response;
         }
 

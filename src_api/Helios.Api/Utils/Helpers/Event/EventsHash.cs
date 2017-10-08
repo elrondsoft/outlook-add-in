@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Helios.Api.Domain.Entities;
 using Helios.Api.Domain.Entities.MainModule;
 using Newtonsoft.Json;
 

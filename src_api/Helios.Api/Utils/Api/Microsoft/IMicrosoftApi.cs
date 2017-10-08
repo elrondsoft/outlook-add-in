@@ -7,7 +7,7 @@ namespace Helios.Api.Utils.Api.Microsoft
     public interface IMicrosoftApi
     {
         Task<MicrosoftRefreshTokenByCodeDto> GetRefreshTokenByCode(string code);
-        Task<string> UpdateRefreshToken();
+        Task<MicrosoftRefreshTokenUpdateResponceDto> UpdateRefreshToken();
 
         Task<string> CreateCalendar(string calendarName);
         Task<string> RetrieveCalendars();
@@ -20,9 +20,6 @@ namespace Helios.Api.Utils.Api.Microsoft
         Task<string> RetrieveTaskFolders();
         Task<string> CreateTaskFolder(string folderName);
 
-        Task<string> CreateTask(string folderId, OutlookTask task);
-        Task<string> RetrieveTasks(string folderId);
-        Task<string> UpdateTask(OutlookTask task);
-        Task<string> DeleteTask(string taskId);
+        
     }
 }

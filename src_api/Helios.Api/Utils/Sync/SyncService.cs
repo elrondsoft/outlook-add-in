@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Helios.Api.Domain.Entities.PluginModule.Helios;
 using Helios.Api.Utils.Api.Helios;
@@ -72,7 +71,7 @@ namespace Helios.Api.Utils.Sync
         {
             foreach (var outlookTask in tasksComparerResult.OutlookTasksToCreate)
             {
-                var json = _microsoftApi.CreateTask(folderId, outlookTask).Result;
+                string json = null; // _microsoftApi.CreateTask(folderId, outlookTask).Result;
                 // TODO: exception if event creation failed
                 var createdOutlookEvent = EventsHelper.MapOutlookEventFromJson(json);
 
@@ -83,7 +82,7 @@ namespace Helios.Api.Utils.Sync
 
             foreach (var outlookTask in tasksComparerResult.OutlookTasksToUpdate)
             {
-                _microsoftApi.UpdateTask(outlookTask);
+                // _microsoftApi.UpdateTask(outlookTask);
             }
 
             foreach (var outlookTask in tasksComparerResult.OutlookTasksToDelete)
@@ -110,7 +109,7 @@ namespace Helios.Api.Utils.Sync
             if (tasksComparerResult.HeliosTasksToCreate.Count != 0 ||
                 tasksComparerResult.HeliosTasksToDelete.Count != 0)
             {
-                _heliosApi.UpdateTasks(originalHeliosTasks);
+                // _heliosApi.UpdateTasks(originalHeliosTasks);
             }
 
             return tasksHash;

@@ -1,7 +1,9 @@
-﻿using Helios.Api.EFContext;
+﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Helios.Api.EFContext;
 
 namespace Helios.Api.Migrations
 {
@@ -14,7 +16,7 @@ namespace Helios.Api.Migrations
                 .HasAnnotation("ProductVersion", "1.1.2")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Helios.Api.Domain.Entities.User", b =>
+            modelBuilder.Entity("Helios.Api.Domain.Entities.MainModule.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();

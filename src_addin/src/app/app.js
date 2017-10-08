@@ -1,14 +1,12 @@
 (function () {
 
+    // =======================================================================//
+    // Environment variables                                                  //
+    // =======================================================================//
+
     var app = angular.module('myApp', ['templates', 'ngMaterial']);
 
-    // =======================================================================//
-    // Constants                                                              //
-    // =======================================================================//
-
     var clientId = 'cd1488fa-849d-4f93-8558-f85ca902cf61';
-    var clientSecret = 'scY9Ymn7jtGWdfvWiiedUmq';
-    var helisSecretToken = 'QUVBMkUyQTQtMkU2RS00MzNFLUEyOTAtOUMzNzYyOUI3MzU5OiFIZWxpb3NXZWJBcHBQYXNzIQ==';
     var apiUrl = 'https://dev-helios-api.azurewebsites.net';
     var redirectUri = 'https://dev-helios-addin.azurewebsites.net/auth.html';
 
@@ -17,8 +15,6 @@
     var redirectUri = 'http://localhost:3000/auth.html';
 
     app.value('clientId', clientId);
-    app.value('clientSecret', clientSecret);
-    app.value('helisSecretToken', helisSecretToken);
     app.value('apiUrl', apiUrl);
     app.value('redirectUri', redirectUri);
 
@@ -28,11 +24,14 @@
 
     var customRouting = {
         hsAuth: true,
-        hsSync: false,
-        hsOptions: false
+        hsSync: false
     };
 
     app.value('customRouting', customRouting);
+
+    // =======================================================================//
+    // App Initialization                                                     //
+    // =======================================================================//
 
     app.component('app', {
         controller: function ($scope, $window, customRouting) {
@@ -59,13 +58,4 @@
         }
     });
 
-    // =======================================================================//
-    // App Initialization                                                     //
-    // =======================================================================//
-
-    // var heliosUserEntityId = window.localStorage.getItem('heliosUserEntityId');
-    // var microsoftToken = window.localStorage.getItem('microsoftToken');
-
-    // app.value('heliosUserEntityId', heliosUserEntityId);
-    // app.value('microsoftToken', microsoftToken);
 })();

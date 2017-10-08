@@ -132,8 +132,8 @@ namespace Helios.Api.Utils.Sync.Comparer
                 {
                     var outlookTaskToCreate = TasksHelper.MapToOutlookTask(null, heliosTask);
                     result.OutlookTasksToCreate.Add(outlookTaskToCreate);
-                    var temporaryEventId = outlookTaskToCreate.Subject + outlookTaskToCreate.DueDateTime;
-                    tasksKeyDictionary.Add(heliosTask.Id, temporaryEventId);
+                    // var temporaryEventId = outlookTaskToCreate.Subject + outlookTaskToCreate.DueDateTime;
+                    // tasksKeyDictionary.Add(heliosTask.Id, temporaryEventId);
                 }
 
                 // Update

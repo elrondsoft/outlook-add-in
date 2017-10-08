@@ -1,9 +1,5 @@
-﻿using System.Linq;
-using System.Net.Http;
-using Helios.Api.Domain.DomainServices;
+﻿using Helios.Api.Domain.DomainServices;
 using Helios.Api.Domain.Dtos.Api;
-using Helios.Api.EFContext;
-using Helios.Api.Utils.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Helios.Api.Controllers
