@@ -11,8 +11,8 @@
     var redirectUri = 'https://dev-helios-addin.azurewebsites.net/auth.html';
 
     /* Comment to deploy on prod */
-    // var apiUrl = 'http://localhost:32748';
-    // var redirectUri = 'https://localhost:3000/auth.html';
+    var apiUrl = 'http://localhost:32748';
+    var redirectUri = 'http://localhost:3000/auth.html';
 
     app.value('clientId', clientId);
     app.value('apiUrl', apiUrl);

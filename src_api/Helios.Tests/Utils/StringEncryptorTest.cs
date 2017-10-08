@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Text;
 using Helios.Api.Utils.Encryption.Providers;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using RestSharp.Extensions.MonoHttp;
@@ -23,25 +24,18 @@ namespace Helios.Tests.Utils
             var decryptedString = AesStringEncryptor.DecryptString(encryptString, key);
 
             Assert.AreEqual(originalString, decryptedString);
-
-            NameValueCollection outgoingQueryString = HttpUtility.ParseQueryString(String.Empty);
-            outgoingQueryString.Add("field1", "value1");
-            outgoingQueryString.Add("field2", "value2");
-            string postdata = outgoingQueryString.ToString();
-
         }
 
         [Test]
-        public void UrlEncoder__ShouldWork()
+        public void QueryString_ShouldWork()
         {
-            NameValueCollection outgoingQueryString = HttpUtility.ParseQueryString(String.Empty);
-            outgoingQueryString.Add("field1", "value1");
-            outgoingQueryString.Add("field2", "value2");
-            string postdata = outgoingQueryString.ToString();
+            var qb = new QueryBuilder();
+            qb.Add("key1","value1 asd");
+            qb.Add("key2", "value2");
+            var query = qb.ToQueryString().ToString().Substring(1);
+            
 
-            Console.WriteLine(postdata);
-
+            Console.WriteLine(query);
         }
-
     }
 }

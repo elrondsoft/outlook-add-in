@@ -188,7 +188,7 @@ gulp.task('reload_sequence', function (callback) {
 gulp.task('serve', ['build_debug'], function () {
     browserSync.init({
         port: 3000,
-        https: true,
+        https: false,
         ui: {
             port: 8083
         },

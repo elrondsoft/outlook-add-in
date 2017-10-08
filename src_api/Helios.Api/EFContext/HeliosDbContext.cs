@@ -16,7 +16,7 @@ namespace Helios.Api.EFContext
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=mysql.dealer-advance.com;Database=dev_helios_1;User Id=sa-quantumlogic-2; Password=2YAfUFq9ZFsnLAgA;");
+            optionsBuilder.UseSqlServer("Server=dealer-advance.database.windows.net;Database=helios;User Id=toto; Password=Qwert12345;");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

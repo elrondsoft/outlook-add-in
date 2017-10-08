@@ -20,13 +20,13 @@ namespace Helios.Api.Utils.Api.Helios
         private readonly User _user;
         private readonly string _apiBaseUrl;
         private readonly string _serverToken;
-        
+
         public HeliosApi(User user, bool isTokenNeeded)
         {
             _user = user;
             _apiBaseUrl = "https://helios.gunnebocloud.com";
             _serverToken = "QUVBMkUyQTQtMkU2RS00MzNFLUEyOTAtOUMzNzYyOUI3MzU5OiFIZWxpb3NXZWJBcHBQYXNzIQ==";
-            
+
             if (isTokenNeeded)
             {
                 CheckTokenExpiration();
@@ -72,7 +72,7 @@ namespace Helios.Api.Utils.Api.Helios
             request.AddHeader("postman-token", "83645fc1-f7ae-8879-db09-ed28871d2418");
             request.AddHeader("cache-control", "no-cache");
             request.AddHeader("authorization", $"Bearer {_user.HeliosToken}");
-            
+
             var tcs = new TaskCompletionSource<HeliosUserDetailsResponceDto>();
             client.ExecuteAsync(request, response =>
             {
@@ -140,26 +140,14 @@ namespace Helios.Api.Utils.Api.Helios
 
         #region Tasks
 
-        public Task<string> RetrieveTasks()
+        public Task<string> CreateTask(HeliosTask task)
         {
-            var client = new RestClient("https://app14.gunnebocloud.com/TaskManager/api/Task/getDailyTasks");
+            var client = new RestClient("https://helios-api.gunnebocloud.com/task/api/Task/create");
             var request = new RestRequest(Method.POST);
-            request.AddHeader("cache-control", "no-cache");
-            request.AddHeader("content-type", "application/json;charset=UTF-8");
+
+            request.AddHeader("content-type", "application/json");
             request.AddHeader("authorization", "Bearer " + _user.HeliosToken);
-            request.AddParameter("application/json;charset=UTF-8", "{\"OrignatorsApiKeyList\":[\"FE5D5C56-0DB3-40E1-B6EE-70C7DE5AA151\"]}", ParameterType.RequestBody);
-
-            throw new NotImplementedException();
-            // IRestResponse response = client.Execute(request);
-            // return response.Content;
-        }
-
-        public Task<string> RetrieveTasksForUser(string apiKey)
-        {
-            var client = new RestClient("https://helios-api.gunnebocloud.com/task/api/Task/getUserAssignedTasks?assignee=" + apiKey);
-            var request = new RestRequest(Method.GET);
-            request.AddHeader("cache-control", "no-cache");
-            request.AddHeader("authorization", $"Bearer {_user.HeliosToken}");
+            request.AddParameter("application/json", JsonConvert.SerializeObject(task), ParameterType.RequestBody);
 
             var tcs = new TaskCompletionSource<string>();
             client.ExecuteAsync(request, response =>
@@ -170,18 +158,71 @@ namespace Helios.Api.Utils.Api.Helios
             return tcs.Task;
         }
 
-        public Task<string> UpdateTasks(IList<HeliosTask> heliosTasks)
+        public Task<IList<HeliosTask>> RetrieveTasks()
         {
-            var client = new RestClient("https://app14.gunnebocloud.com/TaskManager/api/Task/getDailyTasks");
-            var request = new RestRequest(Method.POST);
+            var client = new RestClient("https://helios-api.gunnebocloud.com/task/api/Task/getUserAssignedTasks?assignee=" + _user.ApiKey);
+            var request = new RestRequest(Method.GET);
             request.AddHeader("cache-control", "no-cache");
-            request.AddHeader("content-type", "application/json;charset=UTF-8");
-            request.AddHeader("authorization", "Bearer " + _user.HeliosToken);
-            request.AddParameter("application/json;charset=UTF-8", "{\"OrignatorsApiKeyList\":[\"FE5D5C56-0DB3-40E1-B6EE-70C7DE5AA151\"]}", ParameterType.RequestBody);
+            request.AddHeader("authorization", $"Bearer {_user.HeliosToken}");
 
-            throw new NotImplementedException();
-            // IRestResponse response = client.Execute(request);
-            // return response.Content;
+            var tcs = new TaskCompletionSource<IList<HeliosTask>>();
+            client.ExecuteAsync(request, response =>
+            {
+                tcs.SetResult(JsonConvert.DeserializeObject<IList<HeliosTask>>(response.Content));
+            });
+
+            return tcs.Task;
+        }
+
+        public Task<string> UpdateTask(HeliosTaskToUpdate task)
+        {
+            var client = new RestClient("https://helios-api.gunnebocloud.com/task/api/Task/edit");
+            var request = new RestRequest(Method.POST);
+            request.AddHeader("content-type", "application/json;charset=UTF-8");
+            request.AddHeader("authorization", $"Bearer {_user.HeliosToken}");
+            request.AddParameter("application/json;charset=UTF-8", JsonConvert.SerializeObject(task), ParameterType.RequestBody);
+
+            var tcs = new TaskCompletionSource<string>();
+            client.ExecuteAsync(request, response =>
+            {
+                tcs.SetResult(response.Content);
+            });
+
+            return tcs.Task;
+        }
+
+        public Task<string> AcceptTask(string taskId, string apiKey)
+        {
+            var client = new RestClient("https://helios-api.gunnebocloud.com/task/api/Task/accept");
+            var request = new RestRequest(Method.POST);
+            request.AddHeader("content-type", "application/json;charset=UTF-8");
+            request.AddHeader("authorization", $"Bearer {_user.HeliosToken}");
+            request.AddParameter("application/json;charset=UTF-8", "{\"TaskId\":\"" + taskId + "\",\"Assignee\":\"" + apiKey + "\"}", ParameterType.RequestBody);
+
+            var tcs = new TaskCompletionSource<string>();
+            client.ExecuteAsync(request, response =>
+            {
+                tcs.SetResult(response.Content);
+            });
+
+            return tcs.Task;
+        }
+
+        public Task<string> CompleteTask(string taskId, string apiKey)
+        {
+            var client = new RestClient("https://helios-api.gunnebocloud.com/task/api/Task/complete");
+            var request = new RestRequest(Method.POST);
+            request.AddHeader("content-type", "application/json;charset=UTF-8");
+            request.AddHeader("authorization", $"Bearer {_user.HeliosToken}");
+            request.AddParameter("application/json;charset=UTF-8", "{\"TaskId\":\"" + taskId + "\",\"Executor\":\"" + apiKey + "\"}", ParameterType.RequestBody);
+
+            var tcs = new TaskCompletionSource<string>();
+            client.ExecuteAsync(request, response =>
+            {
+                tcs.SetResult(response.Content);
+            });
+
+            return tcs.Task;
         }
 
         #endregion

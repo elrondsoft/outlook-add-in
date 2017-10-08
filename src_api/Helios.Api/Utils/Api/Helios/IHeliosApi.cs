@@ -6,12 +6,9 @@ namespace Helios.Api.Utils.Api.Helios
 {
     public interface IHeliosApi
     {
-        
-
         Task<string> RetrieveEvents();
         Task<string> UpdateEvents(IList<HeliosEvent> heliosEvents);
 
-        Task<string> RetrieveTasks();
-        Task<string> UpdateTasks(IList<HeliosTask> heliosTasks);
+        Task<IList<HeliosTask>> RetrieveTasks();
     }
 }

@@ -31,10 +31,11 @@ namespace Helios.Tests.Synchronization
             return null;
         }
 
-        public Task<string> RetrieveTasks()
+        public Task<IList<HeliosTask>> RetrieveTasks()
         {
-            return null;
+            throw new NotImplementedException();
         }
+
 
         public Task<string> UpdateTasks(IList<HeliosTask> heliosTasks)
         {

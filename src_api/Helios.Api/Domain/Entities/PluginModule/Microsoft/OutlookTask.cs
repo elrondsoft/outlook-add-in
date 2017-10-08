@@ -6,11 +6,12 @@ namespace Helios.Api.Domain.Entities.PluginModule.Microsoft
     {
         public string Id { get; set; }
         public string Subject { get; set; }
+        public string Status { get; set; }
+        public string Importance { get; set; }
         public TaskBody Body { get; set; }
-        // public DateTime StartDateTime { get; set; }
         public DateTime DueDateTime { get; set; }
 
-        public OutlookTask(string id, string subject, TaskBody body, DateTime dueDateTime)
+        public OutlookTask(string id, string subject, string status, string importance,  TaskBody body, DateTime dueDateTime)
         {
             Id = id;
             Subject = subject;

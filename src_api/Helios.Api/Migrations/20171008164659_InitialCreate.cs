@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Helios.Api.Migrations
 {
@@ -13,14 +15,17 @@ namespace Helios.Api.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    ApiKey = table.Column<string>(nullable: true),
+                    EntityId = table.Column<string>(nullable: true),
+                    EventsSyncHash = table.Column<string>(nullable: true),
                     HeliosLogin = table.Column<string>(nullable: true),
                     HeliosPassword = table.Column<string>(nullable: true),
                     HeliosRefreshToken = table.Column<string>(nullable: true),
                     HeliosToken = table.Column<string>(nullable: true),
                     IsSyncEnabled = table.Column<bool>(nullable: false),
-                    MicrosoftLogin = table.Column<string>(nullable: true),
                     MicrosoftRefreshToken = table.Column<string>(nullable: true),
-                    MicrosoftToken = table.Column<string>(nullable: true)
+                    MicrosoftToken = table.Column<string>(nullable: true),
+                    TasksSyncHash = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

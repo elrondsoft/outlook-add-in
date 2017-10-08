@@ -11,7 +11,7 @@ using NUnit.Framework;
 namespace Helios.Tests.Integration
 {
     [TestFixture]
-    public sealed class ControllerTestsIntegration
+    public sealed class ControllerIntegrationTests
     {
         [Test]
         // [Ignore("Real Http")]
