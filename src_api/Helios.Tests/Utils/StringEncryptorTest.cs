@@ -25,17 +25,5 @@ namespace Helios.Tests.Utils
 
             Assert.AreEqual(originalString, decryptedString);
         }
-
-        [Test]
-        public void QueryString_ShouldWork()
-        {
-            var qb = new QueryBuilder();
-            qb.Add("key1","value1 asd");
-            qb.Add("key2", "value2");
-            var query = qb.ToQueryString().ToString().Substring(1);
-            
-
-            Console.WriteLine(query);
-        }
     }
 }

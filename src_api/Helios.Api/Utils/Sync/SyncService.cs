@@ -71,18 +71,16 @@ namespace Helios.Api.Utils.Sync
         {
             foreach (var outlookTask in tasksComparerResult.OutlookTasksToCreate)
             {
-                string json = null; // _microsoftApi.CreateTask(folderId, outlookTask).Result;
-                // TODO: exception if event creation failed
-                var createdOutlookEvent = EventsHelper.MapOutlookEventFromJson(json);
+                var createdOutlookTask = _microsoftApi.CreateTask(folderId, outlookTask).Result;
 
-                var temporaryEventId = createdOutlookEvent.Subject + createdOutlookEvent.Start.DateTime;
-                var kvp = tasksHash.SingleOrDefault(p => p.Value == temporaryEventId);
-                tasksHash[kvp.Key] = createdOutlookEvent.Id;
+                var temporaryTaskId = createdOutlookTask.Subject + createdOutlookTask.DueDateTime.DateTime;
+                var kvp = tasksHash.SingleOrDefault(p => p.Value == temporaryTaskId);
+                tasksHash[kvp.Key] = createdOutlookTask.Id;
             }
 
             foreach (var outlookTask in tasksComparerResult.OutlookTasksToUpdate)
             {
-                // _microsoftApi.UpdateTask(outlookTask);
+                _microsoftApi.UpdateTask(outlookTask);
             }
 
             foreach (var outlookTask in tasksComparerResult.OutlookTasksToDelete)
@@ -93,25 +91,28 @@ namespace Helios.Api.Utils.Sync
             return tasksHash;
         }
 
-        public Dictionary<string, string> SynchronizeHeliosTasks(Dictionary<string, string> tasksHash, IList<HeliosTask> originalHeliosTasks, TasksComparerResult tasksComparerResult)
+        public Dictionary<string, string> SynchronizeHeliosTasks(Dictionary<string, string> tasksHash, TasksComparerResult tasksComparerResult)
         {
             foreach (var heliosTask in tasksComparerResult.HeliosTasksToCreate)
             {
-                originalHeliosTasks.Add(heliosTask);
+                _heliosApi.CreateTask(heliosTask);
             }
 
-            foreach (var heliosTask in tasksComparerResult.HeliosTasksToDelete)
+            foreach (var heliosTask in tasksComparerResult.HeliosTasksToUpdate)
             {
-                var eventToDelete = originalHeliosTasks.FirstOrDefault(r => r.TaskId == heliosTask.TaskId);
-                originalHeliosTasks.Remove(eventToDelete);
-            }
+                _heliosApi.UpdateTask(heliosTask);
 
-            if (tasksComparerResult.HeliosTasksToCreate.Count != 0 ||
-                tasksComparerResult.HeliosTasksToDelete.Count != 0)
-            {
-                // _heliosApi.UpdateTasks(originalHeliosTasks);
+                if (heliosTask.Status == "Accepted")
+                {
+                    _heliosApi.AcceptTask(heliosTask.Id, "");
+                }
+                if (heliosTask.Status == "Completed")
+                {
+                    _heliosApi.AcceptTask(heliosTask.Id, "");
+                    _heliosApi.CompleteTask(heliosTask.Id, "");
+                }
             }
-
+            
             return tasksHash;
         }
     }

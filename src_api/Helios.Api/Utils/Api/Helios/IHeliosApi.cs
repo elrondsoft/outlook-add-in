@@ -8,7 +8,10 @@ namespace Helios.Api.Utils.Api.Helios
     {
         Task<string> RetrieveEvents();
         Task<string> UpdateEvents(IList<HeliosEvent> heliosEvents);
-
+        Task<string> CreateTask(HeliosTask task);
         Task<IList<HeliosTask>> RetrieveTasks();
+        Task<string> UpdateTask(HeliosTask task);
+        Task<string> AcceptTask(string taskId, string apiKey);
+        Task<string> CompleteTask(string taskId, string apiKey);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Helios.Api.Domain.Dtos.Microsoft;
 using Helios.Api.Domain.Entities.PluginModule.Microsoft;
 
@@ -20,6 +21,9 @@ namespace Helios.Api.Utils.Api.Microsoft
         Task<string> RetrieveTaskFolders();
         Task<string> CreateTaskFolder(string folderName);
 
-        
+        Task<OutlookTask> CreateTask(string folderId, OutlookTask task);
+        Task<IList<OutlookTask>> RetrieveTasks(string folderId);
+        Task<OutlookTask> UpdateTask(OutlookTask task);
+        Task<string> DeleteTask(string taskId);
     }
 }

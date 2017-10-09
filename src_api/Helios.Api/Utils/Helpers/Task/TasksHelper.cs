@@ -10,21 +10,24 @@ namespace Helios.Api.Utils.Helpers.Task
     {
         public static bool TasksAreEqual(HeliosTask heliosTask, OutlookTask outlookTask)
         {
-            if (heliosTask.Subject == outlookTask.Subject &&
-                heliosTask.Body == outlookTask.Body.Content)
+            if (heliosTask.Subject.ToLower() == outlookTask.Subject.ToLower() &&
+                heliosTask.Body.ToLower() == outlookTask.Body.Content.ToLower() &&
+                heliosTask.Status.ToLower() == MapToHeliosStatus(outlookTask.Status).ToLower() &&
+                heliosTask.Importance.ToLower() == outlookTask.Importance.ToLower()
+                )
             {
                 return true;
             }
             return false;
         }
 
-        public static bool IsHeliosTaskOlder(HeliosTask heliosEvent, OutlookTask outlookEvent)
+        public static bool IsHeliosTaskOlder(HeliosTask heliosTask, OutlookTask outlookTask)
         {
-            // TODO: Implement
-            return true;
-            //if (heliosEvent.LastModifiedDateTime > outlookEvent.LastModifiedDateTime)
-            //    return true;
-            //return false;
+            if (heliosTask.LastModified > outlookTask.LastModifiedDateTime)
+            {
+                return true;
+            }
+            return false;
         }
 
         public static HeliosTask MapToHeliosTask(string id, OutlookTask outlookTask, IClock clock, User user)
@@ -36,17 +39,17 @@ namespace Helios.Api.Utils.Helpers.Task
                 Body = outlookTask.Body.Content,
                 DueDateTime = outlookTask.DueDateTime.DateTime,
                 Importance = outlookTask.Importance,
-                Status = MapToOutlookStatus(outlookTask.Status),
+                Status = MapToHeliosStatus(outlookTask.Status),
 
-                LastModified = DateTime.Now,
-                OriginatorId = "6120C583-B849-46FD-8FCE-6F3EDED245C7", // TODO: hardcoded value
+                LastModified = clock.Now,
+                OriginatorId = "6120C583-B849-46FD-8FCE-6F3EDED245C7",
                 AuthorId = user.ApiKey,
                 AssignedTo = user.ApiKey,
                 Executor = user.ApiKey
             };
         }
 
-        public static OutlookTask MapToOutlookTask(string id, HeliosTask heliosTask)
+        public static OutlookTask MapToOutlookTask(string id, HeliosTask heliosTask, IClock clock)
         {
             var outlookTaskStatus = MapToOutlookStatus(heliosTask.Status);
 

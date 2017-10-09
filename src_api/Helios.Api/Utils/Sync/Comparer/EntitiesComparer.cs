@@ -131,7 +131,7 @@ namespace Helios.Api.Utils.Sync.Comparer
                 // Create
                 if (heliosTaskId == null)
                 {
-                    var outlookTaskToCreate = TasksHelper.MapToOutlookTask(null, heliosTask);
+                    var outlookTaskToCreate = TasksHelper.MapToOutlookTask(null, heliosTask, _clock);
                     result.OutlookTasksToCreate.Add(outlookTaskToCreate);
                     var temporaryTaskId = outlookTaskToCreate.Subject + outlookTaskToCreate.DueDateTime;
                     tasksKeyDictionary.Add(heliosTask.TaskId, temporaryTaskId);
@@ -147,7 +147,7 @@ namespace Helios.Api.Utils.Sync.Comparer
 
                     if (TasksHelper.IsHeliosTaskOlder(heliosTask, outlookTask))
                     {
-                        result.OutlookTasksToUpdate.Add(TasksHelper.MapToOutlookTask(outlookTask.Id, heliosTask));
+                        result.OutlookTasksToUpdate.Add(TasksHelper.MapToOutlookTask(outlookTask.Id, heliosTask, _clock));
                     }
                     else
                     {

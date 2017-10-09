@@ -17,6 +17,8 @@ namespace Helios.Api.Domain.Entities.PluginModule.Microsoft
         public TaskBody Body { get; set; }
         [JsonProperty("dueDateTime")]
         public TaskDueDateTime DueDateTime { get; set; }
+        [JsonProperty("lastModifiedDateTime")]
+        public DateTime LastModifiedDateTime { get; set; }
 
         public OutlookTask()
         {

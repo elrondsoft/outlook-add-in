@@ -8,9 +8,10 @@ using Helios.Api.EFContext;
 namespace Helios.Api.Migrations
 {
     [DbContext(typeof(HeliosDbContext))]
-    partial class HeliosDbContextModelSnapshot : ModelSnapshot
+    [Migration("20171009171257_AddedLastUpdateInfo")]
+    partial class AddedLastUpdateInfo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.2")
