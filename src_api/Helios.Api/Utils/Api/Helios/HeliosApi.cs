@@ -174,7 +174,7 @@ namespace Helios.Api.Utils.Api.Helios
             return tcs.Task;
         }
 
-        public Task<string> UpdateTask(HeliosTaskToUpdate task)
+        public Task<string> UpdateTask(HeliosTask task)
         {
             var client = new RestClient("https://helios-api.gunnebocloud.com/task/api/Task/edit");
             var request = new RestRequest(Method.POST);

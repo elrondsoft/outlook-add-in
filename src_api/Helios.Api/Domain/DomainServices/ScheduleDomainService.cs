@@ -50,10 +50,10 @@ namespace Helios.Api.Domain.DomainServices
                 var folderId = new TasksFolderHelper(microsoftApi).CreateHeliosTasksFolderIfNotExists("Helios");
                 var tasksHash = new EventsHash(user).CreateEventsHashIfNotExists();
 
-                IList<HeliosTask> heliosTasks = null;
-                IList<OutlookTask> outlookTasks = null;
+                IList<HeliosTask> heliosTasks = heliosApi.RetrieveTasks().Result;
+                IList<OutlookTask> outlookTasks = microsoftApi.RetrieveTasks(folderId).Result;
 
-                TasksComparerResult tasksComparerResult = entitiesComparer.MergeTasks(heliosTasks, outlookTasks, tasksHash);
+                TasksComparerResult tasksComparerResult = entitiesComparer.MergeTasks(heliosTasks, outlookTasks, user, tasksHash);
 
                 tasksHash = syncService.SynchronizeHeliosTasks(tasksHash, heliosTasks, tasksComparerResult);
                 tasksHash = syncService.SynchronizeOutlookTasks(folderId, tasksHash, tasksComparerResult);

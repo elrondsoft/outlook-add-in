@@ -102,7 +102,7 @@ namespace Helios.Api.Utils.Sync
 
             foreach (var heliosTask in tasksComparerResult.HeliosTasksToDelete)
             {
-                var eventToDelete = originalHeliosTasks.FirstOrDefault(r => r.Id == heliosTask.Id);
+                var eventToDelete = originalHeliosTasks.FirstOrDefault(r => r.TaskId == heliosTask.TaskId);
                 originalHeliosTasks.Remove(eventToDelete);
             }
 

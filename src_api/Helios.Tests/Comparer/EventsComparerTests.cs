@@ -12,8 +12,9 @@ using NUnit.Framework;
 namespace Helios.Tests.Comparer
 {
     [TestFixture]
-    public sealed class ComparerTests
+    public sealed class EventsComparerTests
     {
+
         [Test]
         public void ListsComparer_SlouldWork()
         {

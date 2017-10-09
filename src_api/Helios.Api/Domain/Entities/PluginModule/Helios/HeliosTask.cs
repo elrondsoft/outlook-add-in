@@ -5,47 +5,43 @@ namespace Helios.Api.Domain.Entities.PluginModule.Helios
 {
     public class HeliosTask
     {
+        #region core properties
+        [JsonProperty("Id")]
+        public string Id
+        {
+            get => _entityId;
+            set => _entityId = value;
+        }
         [JsonProperty("taskId")]
-        public string Id { get; set; }
+        public string TaskId
+        {
+            get => _entityId;
+            set => _entityId = value; // this stub is needed to work with helios fucking api
+        }
+        private string _entityId;
         [JsonProperty("title")]
-        public string Title { get; set; }
+        public string Subject { get; set; }
         [JsonProperty("description")]
-        public string Description { get; set; }
-        [JsonProperty("assignedTo")]
-        public string AssignedTo { get; set; }
-        [JsonProperty("dueDate")]
-        public DateTime DueDate { get; set; }
+        public string Body { get; set; }
         [JsonProperty("status")]
-        public string Status { get; set; }
+        public string Status { get; set; } // New, Accepted, Completed, 
         [JsonProperty("priority")]
-        public string Priority { get; set; }
-        [JsonProperty("timeStamp")]
-        public DateTime TimeStamp { get; set; }
-        [JsonProperty("originatorId")]
-        public string OriginatorId { get; set; }
+        public string Importance { get; set; } // Low, Normal, High
+        [JsonProperty("dueDate")]
+        public DateTime DueDateTime { get; set; }
+        #endregion
+
+        #region helios properties
         [JsonProperty("lastModified")]
         public DateTime LastModified { get; set; }
+        [JsonProperty("originatorId")]
+        public string OriginatorId { get; set; }
         [JsonProperty("AuthorId")]
         public string AuthorId { get; set; }
-    }
-
-    public class HeliosTaskToUpdate
-    {
-        [JsonProperty("Id")]
-        public string Id { get; set; }
-        [JsonProperty("Title")]
-        public string Title { get; set; }
-        [JsonProperty("Description")]
-        public string Description { get; set; }
-        [JsonProperty("DueDate")]
-        public DateTime DueDate { get; set; }
-        [JsonProperty("AssignedTo")]
+        [JsonProperty("assignedTo")]
         public string AssignedTo { get; set; }
-        [JsonProperty("Priority")]
-        public string Priority { get; set; }
-        [JsonProperty("OriginatorId")]
-        public string OriginatorId { get; set; }
         [JsonProperty("Executor")]
         public string Executor { get; set; }
+        #endregion
     }
 }

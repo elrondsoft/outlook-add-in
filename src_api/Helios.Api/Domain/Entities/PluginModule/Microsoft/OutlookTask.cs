@@ -9,22 +9,28 @@ namespace Helios.Api.Domain.Entities.PluginModule.Microsoft
         public string Id { get; set; }
         [JsonProperty("subject")]
         public string Subject { get; set; }
-        [JsonProperty("status")]
+        [JsonProperty("status")] // notStarted, inProgress, completed
         public string Status { get; set; }
-        [JsonProperty("importance")]
+        [JsonProperty("importance")] // low, normal, high
         public string Importance { get; set; }
         [JsonProperty("body")]
         public TaskBody Body { get; set; }
         [JsonProperty("dueDateTime")]
         public TaskDueDateTime DueDateTime { get; set; }
 
-        //public OutlookTask(string id, string subject, string status, string importance,  TaskBody body, DateTime dueDateTime)
-        //{
-        //    Id = id;
-        //    Subject = subject;
-        //    Body = body;
-        //    DueDateTime = dueDateTime;
-        //}
+        public OutlookTask()
+        {
+        }
+
+        public OutlookTask(string id, string subject, string status, string importance, TaskBody body, TaskDueDateTime dueDateTime)
+        {
+            Id = id;
+            Subject = subject;
+            Status = status;
+            Importance = importance;
+            Body = body;
+            DueDateTime = dueDateTime;
+        }
     }
     
     public class TaskBody

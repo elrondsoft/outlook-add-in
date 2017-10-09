@@ -14,9 +14,5 @@
         public string EventsSyncHash { get; set; }
         public string TasksSyncHash { get; set; }
         public bool IsSyncEnabled { get; set; }
-
-        public User()
-        {
-        }
     }
 }

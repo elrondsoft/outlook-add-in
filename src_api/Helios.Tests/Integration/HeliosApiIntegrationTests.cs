@@ -69,12 +69,12 @@ namespace Helios.Tests.Integration
         {
             var testTask = new HeliosTask()
             {
-                Title = "test-task-25",
-                Description = "test-task-25",
-                DueDate = DateTime.Now,
+                Subject = "test-task-25",
+                Body = "test-task-25",
+                DueDateTime = DateTime.Now,
                 OriginatorId = "6120C583-B849-46FD-8FCE-6F3EDED245C7",
                 AssignedTo = _user.ApiKey,
-                Priority = "Low",
+                Importance = "Low",
                 AuthorId = _user.ApiKey
             };
 
@@ -88,26 +88,27 @@ namespace Helios.Tests.Integration
         [Ignore("Real Http")]
         public void UpdateTask_ShouldWork()
         {
-            var testTask = new HeliosTaskToUpdate()
+            var taskToUpdate = new HeliosTask()
             {
-                Id = "e8919c2d-a0c9-4151-8cf0-84243edbd4d0",
-                Title = "test-task-29",
-                Description = "test-task-29",
-                DueDate = DateTime.Now,
+                Id = "22c3560e-980f-4bdb-a11f-4e560699cf47",
+                Subject = "test-task-3",
+                Body = "test-task-3",
+                DueDateTime = DateTime.Now,
                 AssignedTo = _user.ApiKey,
-                Priority = "Normal",
+                Importance = "Normal",
                 OriginatorId = "6120C583-B849-46FD-8FCE-6F3EDED245C7",
                 Executor = _user.ApiKey
             };
 
-            var result = _heliosApi.UpdateTask(testTask);
+            _heliosApi.UpdateTask(taskToUpdate);
 
-            Assert.AreEqual(true, result.IsCompleted);
-            Console.WriteLine(JsonConvert.SerializeObject(result.IsCompleted));
+            var list = _heliosApi.RetrieveTasks().Result;
+            var updatedTask = list.FirstOrDefault(r => r.Id == taskToUpdate.Id);
+
+            Assert.AreEqual(taskToUpdate.Subject, updatedTask.Subject);
         }
 
         #endregion
-
     }
 }
 
