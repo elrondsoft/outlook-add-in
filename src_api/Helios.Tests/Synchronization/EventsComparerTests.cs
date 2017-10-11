@@ -9,7 +9,7 @@ using Helios.Api.Utils.Helpers.Event;
 using Helios.Api.Utils.Sync.Comparer;
 using NUnit.Framework;
 
-namespace Helios.Tests.Comparer
+namespace Helios.Tests.Synchronization
 {
     [TestFixture]
     public sealed class EventsComparerTests

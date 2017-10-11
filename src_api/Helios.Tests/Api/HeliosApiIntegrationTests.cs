@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Helios.Api.Domain.Entities.MainModule;
 using Helios.Api.Domain.Entities.PluginModule.Helios;
@@ -9,7 +8,7 @@ using Helios.Api.Utils.Helpers.ClockHelper;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace Helios.Tests.Integration
+namespace Helios.Tests.Api
 {
     [TestFixture]
     public sealed class HeliosApiIntegrationTests
@@ -55,7 +54,7 @@ namespace Helios.Tests.Integration
             var heliosTaskToCreate = new HeliosTaskToCreate(heliosTask);
             _heliosApi.CreateTask(heliosTaskToCreate);
 
-            var createdTask = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Subject == heliosTask.Subject);
+            var createdTask = Enumerable.FirstOrDefault<HeliosTask>(_heliosApi.RetrieveTasks().Result, r => r.Subject == heliosTask.Subject);
             Assert.AreEqual(true, createdTask != null);
         }
 
@@ -75,26 +74,23 @@ namespace Helios.Tests.Integration
             var heliosTaskToUpdate = new HeliosTaskToUpdate(heliosTask);
             _heliosApi.UpdateTask(heliosTaskToUpdate);
 
-            var updatedTask = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Subject == heliosTaskToUpdate.Subject);
+            var updatedTask = Enumerable.FirstOrDefault<HeliosTask>(_heliosApi.RetrieveTasks().Result, r => r.Subject == heliosTaskToUpdate.Subject);
 
             Assert.AreEqual(true, updatedTask != null);
         }
 
         [Test]
         [Ignore("Real Http")]
-        public void CreateAndUpdateTask_ShouldWork()
+        public void CompleteTask_ShouldWork()
         {
-            var heliosTask = new HeliosTask("a4be6274-9258-4f22-aca5-3280274ee0bd", "test-task-555", "test-task-4", DateTime.Now, "New", "Low", _user.ApiKey);
-            var heliosTaskToCreate = new HeliosTaskToCreate(heliosTask);
-            _heliosApi.CreateTask(heliosTaskToCreate);
-            var createdTask = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Subject == heliosTask.Subject);
             
-            createdTask.Subject = "test-task-666";
-            var heliosTaskToUpdate = new HeliosTaskToUpdate(createdTask);
-            _heliosApi.UpdateTask(heliosTaskToUpdate);
-            var updatedTask = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Subject == heliosTaskToUpdate.Subject);
+        }
 
-            Assert.AreEqual(true, updatedTask != null);
+        [Test]
+        [Ignore("Real Http")]
+        public void RejectTask_ShouldWork()
+        {
+
         }
 
         #endregion

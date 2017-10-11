@@ -21,4 +21,8 @@
     <ProjectReference Include="..\Helios.Api\Helios.Api.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Integration\" />
+  </ItemGroup>
+
 </Project>

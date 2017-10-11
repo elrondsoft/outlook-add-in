@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Helios.Api.Domain.Entities.MainModule;
 using Helios.Api.Domain.Entities.PluginModule.Helios;
 using Helios.Api.Domain.Entities.PluginModule.Microsoft;
@@ -10,10 +7,9 @@ using Helios.Api.EFContext;
 using Helios.Api.Utils.Helpers.ClockHelper;
 using Helios.Api.Utils.Helpers.Event;
 using Helios.Api.Utils.Sync.Comparer;
-using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace Helios.Tests.Comparer
+namespace Helios.Tests.Synchronization
 {
     [TestFixture]
     public sealed class TasksComparerTests
@@ -39,15 +35,7 @@ namespace Helios.Tests.Comparer
             };
             var outlookTasks = new List<OutlookTask>()
             {
-                new OutlookTask()
-                {
-                    Id = "outlook-task-1",
-                    Subject = "outlook-subject-1",
-                    Body = new TaskBody("Text", "outlook-body-1"),
-                    Status = "notStarted",
-                    Importance = "Low",
-                    DueDateTime = new TaskDueDateTime(_clock.Now, "UTC"),
-                }
+                new OutlookTask("outlook-task-1", "outlook-subject-1", new TaskBody("Text", "outlook-body-1"), "notStarted", "Low", new TaskDueDateTime(_clock.Now, "UTC"), _clock.Now)
             };
 
             /* Act */

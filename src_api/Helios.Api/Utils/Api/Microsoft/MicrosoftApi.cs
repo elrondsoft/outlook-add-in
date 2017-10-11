@@ -30,8 +30,8 @@ namespace Helios.Api.Utils.Api.Microsoft
         {
             _configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json").Build();
-                //.AddJsonFile("C:\\Data\\Sources\\HeliosOutlookAddid\\src_api\\Helios.Api\\appsettings.json").Build(); //TODO: uncomment for local run
+                // .AddJsonFile("appsettings.json").Build();
+                .AddJsonFile("C:\\Data\\Sources\\HeliosOutlookAddid\\src_api\\Helios.Api\\appsettings.json").Build(); //TODO: uncomment for local run
 
             _user = user;
             _clientId = "cd1488fa-849d-4f93-8558-f85ca902cf61";

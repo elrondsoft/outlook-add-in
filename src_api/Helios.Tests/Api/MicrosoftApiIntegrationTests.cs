@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Helios.Api.Domain.Dtos.Microsoft.Api.Tasks;
 using Helios.Api.Domain.Entities.PluginModule.Microsoft;
 using Helios.Api.EFContext;
 using Helios.Api.Utils.Api.Microsoft;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace Helios.Tests.Integration
+namespace Helios.Tests.Api
 {
     [TestFixture]
     public sealed class MicrosoftApiIntegrationTests
