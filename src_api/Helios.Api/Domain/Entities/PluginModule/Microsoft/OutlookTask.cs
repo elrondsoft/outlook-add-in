@@ -24,7 +24,7 @@ namespace Helios.Api.Domain.Entities.PluginModule.Microsoft
         {
         }
 
-        public OutlookTask(string id, string subject, string status, string importance, TaskBody body, TaskDueDateTime dueDateTime)
+        public OutlookTask(string id, string subject, TaskBody body, string status, string importance, TaskDueDateTime dueDateTime, DateTime lastModifiedDateTime)
         {
             Id = id;
             Subject = subject;
@@ -32,9 +32,10 @@ namespace Helios.Api.Domain.Entities.PluginModule.Microsoft
             Importance = importance;
             Body = body;
             DueDateTime = dueDateTime;
+            LastModifiedDateTime = lastModifiedDateTime;
         }
     }
-    
+
     public class TaskBody
     {
         public string ContentType { get; set; }

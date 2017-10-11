@@ -25,21 +25,7 @@ namespace Helios.Tests.Helper
         [Test]
         public void TasksAreEquatl_ShouldWork()
         {
-            var heliosTask = new HeliosTask()
-            {
-                Id = "task-1",
-                Subject = "subject-1",
-                Body = "body-1",
-                Status = "New",
-                Importance = "Low",
-                DueDateTime = _clock.Now,
-
-                LastModified = _clock.Now,
-                OriginatorId = "6120C583-B849-46FD-8FCE-6F3EDED245C7",
-                AuthorId = _user.ApiKey,
-                AssignedTo = _user.ApiKey,
-                Executor = _user.ApiKey
-            };
+            var heliosTask = new HeliosTask("task-1", "subject-1", "body-1", _clock.Now, "New", "Low", _user.ApiKey);
 
             var outlookTask = new OutlookTask()
             {
@@ -50,7 +36,6 @@ namespace Helios.Tests.Helper
                 Importance = "Low",
                 DueDateTime = new TaskDueDateTime(_clock.Now, "UTC")
             };
-
 
             Assert.AreEqual(TasksHelper.TasksAreEqual(heliosTask, outlookTask), true);
         }

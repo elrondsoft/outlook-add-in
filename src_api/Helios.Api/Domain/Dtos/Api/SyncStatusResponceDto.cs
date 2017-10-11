@@ -4,5 +4,6 @@
     {
         public bool IsSyncEnabled { get; set; }
         public string Error { get; set; }
+        public string SyncInfo { get; set; }
     }
 }

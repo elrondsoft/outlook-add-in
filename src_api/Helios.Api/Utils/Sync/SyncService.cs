@@ -95,12 +95,12 @@ namespace Helios.Api.Utils.Sync
         {
             foreach (var heliosTask in tasksComparerResult.HeliosTasksToCreate)
             {
-                _heliosApi.CreateTask(heliosTask);
+                _heliosApi.CreateTask(new HeliosTaskToCreate(heliosTask));
             }
 
             foreach (var heliosTask in tasksComparerResult.HeliosTasksToUpdate)
             {
-                _heliosApi.UpdateTask(heliosTask);
+                _heliosApi.UpdateTask(new HeliosTaskToUpdate(heliosTask));
 
                 if (heliosTask.Status == "Accepted")
                 {

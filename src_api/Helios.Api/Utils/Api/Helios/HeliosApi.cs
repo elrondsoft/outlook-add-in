@@ -140,7 +140,7 @@ namespace Helios.Api.Utils.Api.Helios
 
         #region Tasks
 
-        public Task<string> CreateTask(HeliosTask task)
+        public Task<string> CreateTask(HeliosTaskToCreate task)
         {
             var client = new RestClient("https://helios-api.gunnebocloud.com/task/api/Task/create");
             var request = new RestRequest(Method.POST);
@@ -174,7 +174,7 @@ namespace Helios.Api.Utils.Api.Helios
             return tcs.Task;
         }
 
-        public Task<string> UpdateTask(HeliosTask task)
+        public Task<string> UpdateTask(HeliosTaskToUpdate task)
         {
             var client = new RestClient("https://helios-api.gunnebocloud.com/task/api/Task/edit");
             var request = new RestRequest(Method.POST);
@@ -211,6 +211,23 @@ namespace Helios.Api.Utils.Api.Helios
         public Task<string> CompleteTask(string taskId, string apiKey)
         {
             var client = new RestClient("https://helios-api.gunnebocloud.com/task/api/Task/complete");
+            var request = new RestRequest(Method.POST);
+            request.AddHeader("content-type", "application/json;charset=UTF-8");
+            request.AddHeader("authorization", $"Bearer {_user.HeliosToken}");
+            request.AddParameter("application/json;charset=UTF-8", "{\"TaskId\":\"" + taskId + "\",\"Executor\":\"" + apiKey + "\"}", ParameterType.RequestBody);
+
+            var tcs = new TaskCompletionSource<string>();
+            client.ExecuteAsync(request, response =>
+            {
+                tcs.SetResult(response.Content);
+            });
+
+            return tcs.Task;
+        }
+
+        public Task<string> RejectTask(string taskId, string apiKey)
+        {
+            var client = new RestClient("https://helios-api.gunnebocloud.com/task/api/Task/reject");
             var request = new RestRequest(Method.POST);
             request.AddHeader("content-type", "application/json;charset=UTF-8");
             request.AddHeader("authorization", $"Bearer {_user.HeliosToken}");

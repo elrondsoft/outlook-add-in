@@ -5,6 +5,7 @@ using Helios.Api.Domain.Entities.MainModule;
 using Helios.Api.Domain.Entities.PluginModule.Helios;
 using Helios.Api.EFContext;
 using Helios.Api.Utils.Api.Helios;
+using Helios.Api.Utils.Helpers.ClockHelper;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -15,10 +16,13 @@ namespace Helios.Tests.Integration
     {
         private readonly User _user;
         readonly HeliosApi _heliosApi;
+        private readonly FakeClock _clock;
+
         public HeliosApiIntegrationTests()
         {
             _user = new HeliosDbContext().Users.FirstOrDefault(r => r.HeliosLogin == "outlookStefan");
             _heliosApi = new HeliosApi(_user, true);
+            _clock = new FakeClock();
         }
 
         #region User
@@ -28,13 +32,7 @@ namespace Helios.Tests.Integration
         public void RetrieveToken__ShouldWork()
         {
             var result = _heliosApi.RetrieveToken().Result;
-
-            if (result.AccessToken == null)
-            {
-                throw new Exception("HeliosApi: Invalid credentials");
-            }
-
-            Console.WriteLine(JsonConvert.SerializeObject(result));
+            Assert.AreEqual(result.AccessToken != null, true);
         }
 
         [Test]
@@ -42,13 +40,7 @@ namespace Helios.Tests.Integration
         public void RetrieveUserEntityId__ShouldWork()
         {
             var result = _heliosApi.RetrieveUserEntityId().Result;
-
-            if (result.UserEntityId == null)
-            {
-                throw new Exception("HeliosApi UserEntityId: Invalid credentials");
-            }
-
-            Console.WriteLine(JsonConvert.SerializeObject(result));
+            Assert.AreEqual(result.UserEntityId != null, true);
         }
 
         #endregion
@@ -57,55 +49,52 @@ namespace Helios.Tests.Integration
 
         [Test]
         [Ignore("Real Http")]
-        public void RetrieveTasks_ShouldWork()
+        public void CreateTask_ShouldWork()
         {
-            var list = _heliosApi.RetrieveTasks().Result;
-            Console.WriteLine($"result = {JsonConvert.SerializeObject(list)}");
+            var heliosTask = new HeliosTask("1", "test-task-4", "test-task-4", DateTime.Now, "New", "Low", _user.ApiKey);
+            var heliosTaskToCreate = new HeliosTaskToCreate(heliosTask);
+            _heliosApi.CreateTask(heliosTaskToCreate);
+
+            var createdTask = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Subject == heliosTask.Subject);
+            Assert.AreEqual(true, createdTask != null);
         }
 
         [Test]
-        [Ignore("Real Http")]
-        public void CreateTask_ShouldWork()
+        public void RetrieveTasks_ShouldWork()
         {
-            var testTask = new HeliosTask()
-            {
-                Subject = "test-task-25",
-                Body = "test-task-25",
-                DueDateTime = DateTime.Now,
-                OriginatorId = "6120C583-B849-46FD-8FCE-6F3EDED245C7",
-                AssignedTo = _user.ApiKey,
-                Importance = "Low",
-                AuthorId = _user.ApiKey
-            };
-
-            var result = _heliosApi.CreateTask(testTask);
-
+            var result = _heliosApi.RetrieveTasks();
+            JsonConvert.SerializeObject(result);
             Assert.AreEqual(true, result.IsCompleted);
-            Console.WriteLine($"result = {JsonConvert.SerializeObject(result)}");
         }
 
         [Test]
         [Ignore("Real Http")]
         public void UpdateTask_ShouldWork()
         {
-            var taskToUpdate = new HeliosTask()
-            {
-                Id = "22c3560e-980f-4bdb-a11f-4e560699cf47",
-                Subject = "test-task-3",
-                Body = "test-task-3",
-                DueDateTime = DateTime.Now,
-                AssignedTo = _user.ApiKey,
-                Importance = "Normal",
-                OriginatorId = "6120C583-B849-46FD-8FCE-6F3EDED245C7",
-                Executor = _user.ApiKey
-            };
+            var heliosTask = new HeliosTask("a4be6274-9258-4f22-aca5-3280274ee0bd", "test-task-555", "test-task-4", DateTime.Now, "New", "Low", _user.ApiKey);
+            var heliosTaskToUpdate = new HeliosTaskToUpdate(heliosTask);
+            _heliosApi.UpdateTask(heliosTaskToUpdate);
 
-            _heliosApi.UpdateTask(taskToUpdate);
+            var updatedTask = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Subject == heliosTaskToUpdate.Subject);
 
-            var list = _heliosApi.RetrieveTasks().Result;
-            var updatedTask = list.FirstOrDefault(r => r.Id == taskToUpdate.Id);
+            Assert.AreEqual(true, updatedTask != null);
+        }
 
-            Assert.AreEqual(taskToUpdate.Subject, updatedTask.Subject);
+        [Test]
+        [Ignore("Real Http")]
+        public void CreateAndUpdateTask_ShouldWork()
+        {
+            var heliosTask = new HeliosTask("a4be6274-9258-4f22-aca5-3280274ee0bd", "test-task-555", "test-task-4", DateTime.Now, "New", "Low", _user.ApiKey);
+            var heliosTaskToCreate = new HeliosTaskToCreate(heliosTask);
+            _heliosApi.CreateTask(heliosTaskToCreate);
+            var createdTask = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Subject == heliosTask.Subject);
+            
+            createdTask.Subject = "test-task-666";
+            var heliosTaskToUpdate = new HeliosTaskToUpdate(createdTask);
+            _heliosApi.UpdateTask(heliosTaskToUpdate);
+            var updatedTask = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Subject == heliosTaskToUpdate.Subject);
+
+            Assert.AreEqual(true, updatedTask != null);
         }
 
         #endregion

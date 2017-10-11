@@ -28,16 +28,16 @@ namespace Helios.Api.Utils.Api.Microsoft
 
         public MicrosoftApi(User user, bool isTokenNeeded)
         {
-            //_configuration = new ConfigurationBuilder()
-            //    .SetBasePath(Directory.GetCurrentDirectory())
-            //    .AddJsonFile("appsettings.json").Build();
+            _configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json").Build();
+                //.AddJsonFile("C:\\Data\\Sources\\HeliosOutlookAddid\\src_api\\Helios.Api\\appsettings.json").Build(); //TODO: uncomment for local run
 
             _user = user;
             _clientId = "cd1488fa-849d-4f93-8558-f85ca902cf61";
             _clientSecret = "scY9Ymn7jtGWdfvWiiedUmq";
-            _redirectUrl = "https://dev-helios-addin.azurewebsites.net/auth.html";
-            _redirectUrl = "http://localhost:3000/auth.html";
-
+            _redirectUrl = _configuration["MicrosoftRedirectUrl"];
+            
             if (isTokenNeeded)
             {
                 CheckTokenExpiration();

@@ -52,8 +52,6 @@ namespace Helios.Tests.Synchronization
 
             /* Act */
             var eventsComparerResult = new EntitiesComparer(new FakeEventId(), new FakeClock()).MergeEvents(heliosEvents, outlookEvents, eventsKeyDictionary);
-
-            
             var resultEventsKeyDictionary = new SyncService(_heliosApiMock, _microsoftApiMock).SynchronizeOutlookEvents(_calendarId, eventsKeyDictionary, eventsComparerResult);
 
             /* Assert */

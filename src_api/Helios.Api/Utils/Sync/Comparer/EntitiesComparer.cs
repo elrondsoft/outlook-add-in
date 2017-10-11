@@ -123,7 +123,7 @@ namespace Helios.Api.Utils.Sync.Comparer
             /* Helios */
             foreach (var heliosTask in heliosTasks)
             {
-                var kpv = tasksKeyDictionary.FirstOrDefault(x => x.Key == heliosTask.TaskId);
+                var kpv = tasksKeyDictionary.FirstOrDefault(x => x.Key == heliosTask.Id);
                 var heliosTaskId = kpv.Key;
                 var outlookTasktId = kpv.Value;
                 var outlookTask = outlookTasks.FirstOrDefault(r => r.Id == outlookTasktId);
@@ -134,7 +134,7 @@ namespace Helios.Api.Utils.Sync.Comparer
                     var outlookTaskToCreate = TasksHelper.MapToOutlookTask(null, heliosTask, _clock);
                     result.OutlookTasksToCreate.Add(outlookTaskToCreate);
                     var temporaryTaskId = outlookTaskToCreate.Subject + outlookTaskToCreate.DueDateTime;
-                    tasksKeyDictionary.Add(heliosTask.TaskId, temporaryTaskId);
+                    tasksKeyDictionary.Add(heliosTask.Id, temporaryTaskId);
                 }
 
                 // Update
@@ -151,7 +151,7 @@ namespace Helios.Api.Utils.Sync.Comparer
                     }
                     else
                     {
-                        result.HeliosTasksToUpdate.Add(TasksHelper.MapToHeliosTask(heliosTask.TaskId, outlookTask, _clock, user));
+                        result.HeliosTasksToUpdate.Add(TasksHelper.MapToHeliosTask(heliosTask.Id, outlookTask, _clock, user));
                     }
                 }
 
@@ -159,7 +159,7 @@ namespace Helios.Api.Utils.Sync.Comparer
                 if (heliosTaskId != null && outlookTask == null)
                 {
                     result.HeliosTasksToDelete.Add(heliosTask);
-                    tasksKeyDictionary.Remove(heliosTask.TaskId);
+                    tasksKeyDictionary.Remove(heliosTask.Id);
                 }
             }
 
@@ -169,7 +169,7 @@ namespace Helios.Api.Utils.Sync.Comparer
                 var kpv = tasksKeyDictionary.FirstOrDefault(x => x.Value == outlookTask.Id);
                 var heliosTaskId = kpv.Key;
                 var outlookTaskId = kpv.Value;
-                var heliosTask = heliosTasks.FirstOrDefault(r => r.TaskId == heliosTaskId);
+                var heliosTask = heliosTasks.FirstOrDefault(r => r.Id == heliosTaskId);
 
                 // Create
                 if (outlookTaskId == null)

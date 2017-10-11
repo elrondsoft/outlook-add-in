@@ -12,7 +12,7 @@ using RestSharp.Extensions.MonoHttp;
 namespace Helios.Tests.Utils
 {
     [TestFixture]
-    public sealed class StringEncryptorTest
+    public sealed class UtilsTest
     {
         [Test]
         public void EncryptString__ShouldWork()
@@ -24,6 +24,12 @@ namespace Helios.Tests.Utils
             var decryptedString = AesStringEncryptor.DecryptString(encryptString, key);
 
             Assert.AreEqual(originalString, decryptedString);
+        }
+
+        [Test]
+        public void DateTimeFormat_ExpectedBehavior()
+        {
+            DateTime.Now.ToString("u");
         }
     }
 }

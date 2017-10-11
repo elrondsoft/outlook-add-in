@@ -32,28 +32,15 @@ namespace Helios.Api.Utils.Helpers.Task
 
         public static HeliosTask MapToHeliosTask(string id, OutlookTask outlookTask, IClock clock, User user)
         {
-            return new HeliosTask()
-            {
-                Id = id,
-                Subject = outlookTask.Subject,
-                Body = outlookTask.Body.Content,
-                DueDateTime = outlookTask.DueDateTime.DateTime,
-                Importance = outlookTask.Importance,
-                Status = MapToHeliosStatus(outlookTask.Status),
-
-                LastModified = clock.Now,
-                OriginatorId = "6120C583-B849-46FD-8FCE-6F3EDED245C7",
-                AuthorId = user.ApiKey,
-                AssignedTo = user.ApiKey,
-                Executor = user.ApiKey
-            };
+            return new HeliosTask(id, outlookTask.Subject, outlookTask.Body.Content, outlookTask.DueDateTime.DateTime,
+                MapToHeliosStatus(outlookTask.Status), outlookTask.Importance, user.ApiKey);
         }
 
         public static OutlookTask MapToOutlookTask(string id, HeliosTask heliosTask, IClock clock)
         {
             var outlookTaskStatus = MapToOutlookStatus(heliosTask.Status);
 
-            return new OutlookTask(id, heliosTask.Subject, outlookTaskStatus, heliosTask.Importance, new TaskBody("Text", heliosTask.Body), new TaskDueDateTime(heliosTask.DueDateTime, "UTC"));
+            return new OutlookTask(id, heliosTask.Subject, new TaskBody("Text", heliosTask.Body), outlookTaskStatus, heliosTask.Importance, new TaskDueDateTime(heliosTask.DueDateTime, "UTC"), clock.Now);
         }
 
         private static string MapToOutlookStatus(string heliosTaskStatus)

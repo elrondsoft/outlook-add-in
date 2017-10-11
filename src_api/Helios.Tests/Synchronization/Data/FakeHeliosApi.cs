@@ -23,7 +23,7 @@ namespace Helios.Tests.Synchronization.Data
             return null;
         }
 
-        public Task<string> CreateTask(HeliosTask task)
+        public Task<string> CreateTask(HeliosTaskToCreate task)
         {
             throw new NotImplementedException();
         }
@@ -33,7 +33,7 @@ namespace Helios.Tests.Synchronization.Data
             throw new NotImplementedException();
         }
 
-        public Task<string> UpdateTask(HeliosTask task)
+        public Task<string> UpdateTask(HeliosTaskToUpdate task)
         {
             throw new NotImplementedException();
         }
@@ -48,8 +48,7 @@ namespace Helios.Tests.Synchronization.Data
             throw new NotImplementedException();
         }
 
-
-        public Task<string> UpdateTasks(IList<HeliosTask> heliosTasks)
+        public Task<string> RejectTask(string taskId, string apiKey)
         {
             throw new NotImplementedException();
         }
