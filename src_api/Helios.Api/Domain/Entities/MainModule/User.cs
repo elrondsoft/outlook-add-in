@@ -8,15 +8,11 @@
         public string HeliosLogin { get; set; }
         public string HeliosPassword { get; set; }
         public string HeliosToken { get; set; }
-        public string HeliosRefreshToken { get; set; }
         public string MicrosoftToken { get; set; }
         public string MicrosoftRefreshToken { get; set; }
+        public bool IsSyncEnabled { get; set; }
+        public string LastUpdateInfo { get; set; }
         public string EventsSyncHash { get; set; }
         public string TasksSyncHash { get; set; }
-        public bool IsSyncEnabled { get; set; }
-
-        public User()
-        {
-        }
     }
 }

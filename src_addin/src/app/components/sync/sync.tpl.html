@@ -24,3 +24,27 @@
         </div>
     </div>
 </div>
+<p></p>
+<div class="alert alert-primary" role="alert">
+    <p class="text-center"><b>Last Sync</b><br> {{$ctrl.syncInfo['LastSyncDateTime']}}</p>
+    <b>Events</b>
+    <div class="row">
+        <div class="col-4">Created:</div>
+        <div class="col-8 text-right"><b>{{$ctrl.syncInfo.EventsCreated}}</b></div>
+        <div class="col-4">Updated:</div>
+        <div class="col-8 text-right"><b>{{$ctrl.syncInfo.EventsUpdated}}</b></div>
+        <div class="col-4">Deleted:</div>
+        <div class="col-8 text-right"><b>{{$ctrl.syncInfo.EventsDeleted}}</b></div>
+    </div>
+    <br>
+    <b>Tasks</b>
+    <div class="row">
+        <div class="col-4">Created:</div>
+        <div class="col-8 text-right"><b>{{$ctrl.syncInfo.TasksCreated}}</b></div>
+        <div class="col-4">Updated:</div>
+        <div class="col-8 text-right"><b>{{$ctrl.syncInfo.TasksUpdated}}</b></div>
+        <div class="col-4">Deleted:</div>
+        <div class="col-8 text-right"><b>{{$ctrl.syncInfo.TasksDeleted}}</b></div>
+    </div>
+</div>
+

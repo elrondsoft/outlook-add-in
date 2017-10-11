@@ -27,6 +27,7 @@ namespace Helios.Api.Domain.DomainServices
             }
 
             responce.IsSyncEnabled = user.IsSyncEnabled;
+            responce.SyncInfo = user.LastUpdateInfo;
             return responce;
         }
 
@@ -49,9 +50,19 @@ namespace Helios.Api.Domain.DomainServices
                 return responce;
             }
 
-            user.IsSyncEnabled = request.IsSyncEnabled;
-            responce.IsSyncEnabled = user.IsSyncEnabled;
+            var isSyncEnabled = request.IsSyncEnabled;
+            user.IsSyncEnabled = isSyncEnabled;
             db.SaveChanges();
+
+            if (isSyncEnabled)
+            {
+                new ScheduleDomainService().SynchronizeAll();
+                db = new HeliosDbContext();
+                user = db.Users.FirstOrDefault(r => r.EntityId == request.UserEntityId);
+            }
+            
+            responce.IsSyncEnabled = user.IsSyncEnabled;
+            responce.SyncInfo = user.LastUpdateInfo;
 
             return responce;
         }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Helios.Api.Domain.Dtos.Api;
 using Helios.Api.Domain.Dtos.Microsoft;
+using Helios.Api.Domain.Entities.MainModule;
 using Helios.Api.Domain.Entities.PluginModule.Helios;
 using Helios.Api.Domain.Entities.PluginModule.Microsoft;
 using Helios.Api.EFContext;
@@ -32,7 +34,9 @@ namespace Helios.Api.Domain.DomainServices
                 var microsoftApi = new MicrosoftApi(user, true);
                 var syncService = new SyncService(heliosApi, microsoftApi);
 
-                /* Events */
+                // =======================================================================//
+                // Events                                                                 //
+                // =======================================================================//
                 var calendarId = new CalendarHelper(microsoftApi).CreateHeliosCalendarIfNotExists("Helios");
                 var eventsHash = new EventsHash(user).CreateEventsHashIfNotExists();
 
@@ -45,22 +49,51 @@ namespace Helios.Api.Domain.DomainServices
                 eventsHash = syncService.SynchronizeOutlookEvents(calendarId, eventsHash, eventsComparerResult);
 
                 user.EventsSyncHash = JsonConvert.SerializeObject(eventsHash);
-                
-                /* Tasks  */
+
+                // =======================================================================//
+                // Tasks                                                                  //
+                // =======================================================================//
                 var folderId = new TasksFolderHelper(microsoftApi).CreateHeliosTasksFolderIfNotExists("Helios");
                 var tasksHash = new EventsHash(user).CreateEventsHashIfNotExists();
 
-                IList<HeliosTask> heliosTasks = null;
-                IList<OutlookTask> outlookTasks = null;
+                IList<HeliosTask> heliosTasks = heliosApi.RetrieveTasks().Result;
+                IList<OutlookTask> outlookTasks = microsoftApi.RetrieveTasks(folderId).Result;
 
-                TasksComparerResult tasksComparerResult = entitiesComparer.MergeTasks(heliosTasks, outlookTasks, tasksHash);
+                TasksComparerResult tasksComparerResult = entitiesComparer.MergeTasks(heliosTasks, outlookTasks, user, tasksHash);
 
-                tasksHash = syncService.SynchronizeHeliosTasks(tasksHash, heliosTasks, tasksComparerResult);
-                tasksHash = syncService.SynchronizeOutlookTasks(folderId, tasksHash, tasksComparerResult);
+                // tasksHash = syncService.SynchronizeHeliosTasks(tasksHash, heliosTasks, tasksComparerResult);
+                // tasksHash = syncService.SynchronizeOutlookTasks(folderId, tasksHash, tasksComparerResult);
 
                 user.TasksSyncHash = JsonConvert.SerializeObject(eventsHash);
+                // =======================================================================//
+
+                user.LastUpdateInfo = JsonConvert.SerializeObject(UpdateUserSyncInfo(user, eventsComparerResult, tasksComparerResult));
             }
+
             db.SaveChanges();
+        }
+
+        private SyncInfoDto UpdateUserSyncInfo(User user, EventsComparerResult eventsComparerResult, TasksComparerResult tasksComparerResult)
+        {
+            var syncInfoDto = new SyncInfoDto();
+
+            syncInfoDto.EventsCreated = eventsComparerResult.HeliosEventsToCreate.Count +
+                                        eventsComparerResult.OutlookEventsToCreate.Count;
+            syncInfoDto.EventsUpdated = eventsComparerResult.HeliosEventsToUpdate.Count +
+                                        eventsComparerResult.OutlookEventsToUpdate.Count;
+            syncInfoDto.EventsDeleted = eventsComparerResult.HeliosEventsToDelete.Count +
+                                        eventsComparerResult.HeliosEventsToDelete.Count;
+
+            syncInfoDto.TasksCreated = tasksComparerResult.HeliosTasksToCreate.Count +
+                                       tasksComparerResult.OutlookTasksToCreate.Count;
+            syncInfoDto.TasksUpdated = tasksComparerResult.HeliosTasksToUpdate.Count +
+                                       tasksComparerResult.OutlookTasksToUpdate.Count;
+            syncInfoDto.TasksDeleted = tasksComparerResult.HeliosTasksToDelete.Count +
+                                       tasksComparerResult.OutlookTasksToDelete.Count;
+
+            syncInfoDto.LastSyncDateTime = DateTime.Now.ToString("u");
+
+            return syncInfoDto;
         }
 
         public void ResreshTokens()

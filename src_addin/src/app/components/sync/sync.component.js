@@ -9,6 +9,7 @@
                 self.isError = false;
                 self.errorText = '';
                 self.isSyncEnabled = null;
+                self.syncInfo = null;
 
                 self.$onInit = function() {
                     self.idLoading = true;
@@ -31,6 +32,10 @@
 
                         if (data.isSyncEnabled != null) {
                             self.isSyncEnabled = data.isSyncEnabled;
+                        }
+
+                        if (data.syncInfo != null) {
+                            self.syncInfo = data.syncInfo;
                         }
                     });
                 };
@@ -55,6 +60,11 @@
 
                         if (data.isSyncEnabled != null) {
                             self.isSyncEnabled = data.isSyncEnabled;
+                        }
+
+                        if (data.syncInfo != null) {
+                            self.syncInfo = JSON.parse(data.syncInfo);
+                            console.log(self.syncInfo);
                         }
                     });
                 };

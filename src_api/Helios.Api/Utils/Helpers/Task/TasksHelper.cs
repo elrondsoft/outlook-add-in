@@ -1,4 +1,5 @@
 ﻿using System;
+using Helios.Api.Domain.Entities.MainModule;
 using Helios.Api.Domain.Entities.PluginModule.Helios;
 using Helios.Api.Domain.Entities.PluginModule.Microsoft;
 using Helios.Api.Utils.Helpers.ClockHelper;
@@ -7,36 +8,67 @@ namespace Helios.Api.Utils.Helpers.Task
 {
     public static class TasksHelper
     {
-        public static bool TasksAreEqual(HeliosTask heliosEvent, OutlookTask outlookEvent)
+        public static bool TasksAreEqual(HeliosTask heliosTask, OutlookTask outlookTask)
         {
-            // TODO: add datetime to compare
-            //if (heliosEvent.Title == outlookEvent.Subject && heliosEvent.Description == outlookEvent.Body.Content)
-            //{
-            //    return true;
-            //}
+            if (heliosTask.Subject.ToLower() == outlookTask.Subject.ToLower() &&
+                heliosTask.Body.ToLower() == outlookTask.Body.Content.ToLower() &&
+                heliosTask.Status.ToLower() == MapToHeliosStatus(outlookTask.Status).ToLower() &&
+                heliosTask.Importance.ToLower() == outlookTask.Importance.ToLower()
+                )
+            {
+                return true;
+            }
             return false;
         }
 
-        public static bool IsHeliosEventOlder(HeliosTask heliosEvent, OutlookTask outlookEvent)
+        public static bool IsHeliosTaskOlder(HeliosTask heliosTask, OutlookTask outlookTask)
         {
-            // TODO: Implement
-            return true;
-            //if (heliosEvent.LastModifiedDateTime > outlookEvent.LastModifiedDateTime)
-            //    return true;
-            //return false;
+            if (heliosTask.LastModified > outlookTask.LastModifiedDateTime)
+            {
+                return true;
+            }
+            return false;
         }
 
-        public static HeliosTask MapToHeliosTask(string id, OutlookTask outlookEvent, IClock clock)
+        public static HeliosTask MapToHeliosTask(string id, OutlookTask outlookTask, IClock clock, User user)
         {
-            throw new NotImplementedException();
-
-            // return new HeliosEvent(id, outlookEvent.Subject, outlookEvent.Body.Content, null, outlookEvent.Start.DateTime, outlookEvent.End.DateTime, clock.Now);
+            return new HeliosTask(id, outlookTask.Subject, outlookTask.Body.Content, outlookTask.DueDateTime.DateTime,
+                MapToHeliosStatus(outlookTask.Status), outlookTask.Importance, user.ApiKey);
         }
 
-        public static OutlookTask MapToOutlookTask(string id, HeliosTask heliosEvent)
+        public static OutlookTask MapToOutlookTask(string id, HeliosTask heliosTask, IClock clock)
         {
-            throw new NotImplementedException();
-            // return new OutlookEvent(id, heliosEvent.Title, new EventBody("Text", heliosEvent.Description), new EventDateTime(heliosEvent.Start, "UTC"), new EventDateTime(heliosEvent.End, "UTC"));
+            var outlookTaskStatus = MapToOutlookStatus(heliosTask.Status);
+
+            return new OutlookTask(id, heliosTask.Subject, new TaskBody("Text", heliosTask.Body), outlookTaskStatus, heliosTask.Importance, new TaskDueDateTime(heliosTask.DueDateTime, "UTC"), clock.Now);
+        }
+
+        private static string MapToOutlookStatus(string heliosTaskStatus)
+        {
+            var outlookTaskStatus = "notStarted";
+
+            if (heliosTaskStatus == "New")
+                outlookTaskStatus = "notStarted";
+            if (heliosTaskStatus == "Accepted")
+                outlookTaskStatus = "inProgress";
+            if (heliosTaskStatus == "Completed")
+                outlookTaskStatus = "completed";
+
+            return outlookTaskStatus;
+        }
+
+        private static string MapToHeliosStatus(string outlookTaskStatus)
+        {
+            var heliosTaskStatus = "New";
+
+            if (outlookTaskStatus == "notStarted")
+                heliosTaskStatus = "New";
+            if (outlookTaskStatus == "inProgress")
+                heliosTaskStatus = "Accepted";
+            if (outlookTaskStatus == "completed")
+                heliosTaskStatus = "Completed";
+
+            return heliosTaskStatus;
         }
     }
 }
