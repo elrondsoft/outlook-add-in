@@ -1,7 +1,7 @@
 (function () {
     angular.module('myApp')
         .component('hsAuthOutlook', {
-            controller: function ($scope, $window, $interval, $httpParamSerializer, clientId, redirectUri, api) {
+            controller: function ($scope, $window, $interval, $timeout, $httpParamSerializer, clientId, redirectUri, api) {
                 var self = this;
 
                 self.isLoading = false;
@@ -39,6 +39,10 @@
                                 if (data.accessToken) {
                                     self.microsoftToken = data.accessToken;
                                     $window.localStorage.setItem('microsoftToken', data.accessToken);
+
+                                    $timeout(function() {
+                                        self.navigateInner({component: 'hsSync'});
+                                    },200);
                                 }
                             });
 
@@ -67,10 +71,12 @@
                     self.microsoftToken = null;
                     $window.localStorage.removeItem('microsoftToken');
                 };
+
             },
             templateUrl: 'src/app/components/authorization/microsoft/auth-outlook.tpl.html',
             bindings: {
                 microsoftToken: '=',
+                navigateInner: '&'
             }
         });
 })();

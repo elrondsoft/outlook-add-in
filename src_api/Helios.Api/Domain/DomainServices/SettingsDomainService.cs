@@ -56,7 +56,7 @@ namespace Helios.Api.Domain.DomainServices
 
             if (isSyncEnabled)
             {
-                new ScheduleDomainService().SynchronizeAll();
+                
                 db = new HeliosDbContext();
                 user = db.Users.FirstOrDefault(r => r.EntityId == request.UserEntityId);
             }

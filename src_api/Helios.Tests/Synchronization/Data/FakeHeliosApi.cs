@@ -52,5 +52,20 @@ namespace Helios.Tests.Synchronization.Data
         {
             throw new NotImplementedException();
         }
+
+        Task<IList<HeliosEvent>> IHeliosApi.RetrieveEvents()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IHeliosApi.CompleteTask(string taskId, string apiKey)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IHeliosApi.RejectTask(string taskId, string apiKey)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

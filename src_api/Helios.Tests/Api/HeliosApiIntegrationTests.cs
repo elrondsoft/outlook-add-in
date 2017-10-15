@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using Helios.Api.Domain.Entities.MainModule;
 using Helios.Api.Domain.Entities.PluginModule.Helios;
 using Helios.Api.EFContext;
@@ -30,7 +31,7 @@ namespace Helios.Tests.Api
         [Ignore("Real Http")]
         public void RetrieveToken__ShouldWork()
         {
-            var result = _heliosApi.RetrieveToken().Result;
+            var result = _heliosApi.RetrieveToken("").Result;
             Assert.AreEqual(result.AccessToken != null, true);
         }
 
@@ -54,7 +55,7 @@ namespace Helios.Tests.Api
             var heliosTaskToCreate = new HeliosTaskToCreate(heliosTask);
             _heliosApi.CreateTask(heliosTaskToCreate);
 
-            var createdTask = Enumerable.FirstOrDefault<HeliosTask>(_heliosApi.RetrieveTasks().Result, r => r.Subject == heliosTask.Subject);
+            var createdTask = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Subject == heliosTask.Subject);
             Assert.AreEqual(true, createdTask != null);
         }
 
@@ -70,11 +71,11 @@ namespace Helios.Tests.Api
         [Ignore("Real Http")]
         public void UpdateTask_ShouldWork()
         {
-            var heliosTask = new HeliosTask("a4be6274-9258-4f22-aca5-3280274ee0bd", "test-task-555", "test-task-4", DateTime.Now, "New", "Low", _user.ApiKey);
+            var heliosTask = new HeliosTask("3c517f1f-e51d-4732-9544-b9006b024fe7", "test-task-33", "test-task-33", DateTime.Now, "New", "Low", _user.ApiKey);
             var heliosTaskToUpdate = new HeliosTaskToUpdate(heliosTask);
             _heliosApi.UpdateTask(heliosTaskToUpdate);
 
-            var updatedTask = Enumerable.FirstOrDefault<HeliosTask>(_heliosApi.RetrieveTasks().Result, r => r.Subject == heliosTaskToUpdate.Subject);
+            var updatedTask = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Subject == heliosTaskToUpdate.Subject);
 
             Assert.AreEqual(true, updatedTask != null);
         }
@@ -83,14 +84,24 @@ namespace Helios.Tests.Api
         [Ignore("Real Http")]
         public void CompleteTask_ShouldWork()
         {
-            
+            var taskId = "a6beaaba-34eb-49bb-9a28-baf5d91812cb";
+            _heliosApi.CompleteTask(taskId, _user.ApiKey);
+            _heliosApi.CompleteTask(taskId, _user.ApiKey);
+
+            var status = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Id == taskId).Status;
+            Assert.AreEqual("completed", status.ToLower());
         }
 
         [Test]
         [Ignore("Real Http")]
         public void RejectTask_ShouldWork()
         {
+            var taskId = "";
+            _heliosApi.RejectTask(taskId, _user.ApiKey);
+            _heliosApi.RejectTask(taskId, _user.ApiKey);
 
+            var status = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Id == taskId).Status;
+            Assert.AreEqual("rejected", status.ToLower());
         }
 
         #endregion

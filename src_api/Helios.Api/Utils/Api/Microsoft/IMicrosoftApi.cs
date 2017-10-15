@@ -7,14 +7,14 @@ namespace Helios.Api.Utils.Api.Microsoft
 {
     public interface IMicrosoftApi
     {
-        Task<MicrosoftRefreshTokenByCodeDto> GetRefreshTokenByCode(string code);
+        Task<MicrosoftRefreshTokenByCodeDto> GetRefreshTokenByCode(string code, string clientId, string redirectUrl, string clientSecret);
         Task<MicrosoftRefreshTokenUpdateResponceDto> UpdateRefreshToken();
 
         Task<string> CreateCalendar(string calendarName);
         Task<string> RetrieveCalendars();
 
         Task<string> CreateEvent(string calendarId, OutlookEvent outlookEvent);
-        Task<string> RetrieveEvents(string calendarId);
+        Task<IList<OutlookEvent>> RetrieveEvents(string calendarId);
         Task<string> UpdateEvent(OutlookEvent @event);
         Task<string> DeleteEvent(string eventId);
 

@@ -23,8 +23,6 @@ namespace Helios.Api.Utils.Helpers.Event
 
         public static bool IsHeliosEventOlder(HeliosEvent heliosEvent, OutlookEvent outlookEvent)
         {
-            // TODO: Implement
-            return true;
             if (heliosEvent.LastModifiedDateTime > outlookEvent.LastModifiedDateTime)
                 return true;
             return false;
@@ -38,20 +36,6 @@ namespace Helios.Api.Utils.Helpers.Event
         public static OutlookEvent MapToOutlookEvent(string id, HeliosEvent heliosEvent)
         {
             return new OutlookEvent(id, heliosEvent.Title, new EventBody("Text", heliosEvent.Description), new EventDateTime(heliosEvent.Start, "UTC"), new EventDateTime(heliosEvent.End, "UTC"));
-        }
-
-        public static IList<HeliosEvent> MapHeliosEventsListFromJson(string json)
-        {
-            var heliosEventsRootDtoList = JsonConvert.DeserializeObject<List<HeliosEventsRootDto>>(json);
-            string stringValue = heliosEventsRootDtoList.FirstOrDefault().Value;
-
-            if (stringValue == null)
-            {
-                return new List<HeliosEvent>();
-            }
-
-            IList<HeliosEvent> eventsList = JsonConvert.DeserializeObject<List<HeliosEvent>>(stringValue);
-            return eventsList;
         }
 
         public static string MapFromHeliosEventsListToJson(IList<HeliosEvent> heliosEvents)

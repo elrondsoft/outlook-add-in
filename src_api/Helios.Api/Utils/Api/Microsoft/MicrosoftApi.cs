@@ -21,22 +21,10 @@ namespace Helios.Api.Utils.Api.Microsoft
     public class MicrosoftApi : IMicrosoftApi
     {
         private readonly User _user;
-        private readonly string _clientId;
-        private readonly string _clientSecret;
-        private readonly string _redirectUrl;
-        private readonly IConfigurationRoot _configuration;
-
+        
         public MicrosoftApi(User user, bool isTokenNeeded)
         {
-            _configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                // .AddJsonFile("appsettings.json").Build();
-                .AddJsonFile("C:\\Data\\Sources\\HeliosOutlookAddid\\src_api\\Helios.Api\\appsettings.json").Build(); //TODO: uncomment for local run
-
             _user = user;
-            _clientId = "cd1488fa-849d-4f93-8558-f85ca902cf61";
-            _clientSecret = "scY9Ymn7jtGWdfvWiiedUmq";
-            _redirectUrl = _configuration["MicrosoftRedirectUrl"];
             
             if (isTokenNeeded)
             {
@@ -73,17 +61,17 @@ namespace Helios.Api.Utils.Api.Microsoft
             return tcs.Task;
         }
 
-        public Task<MicrosoftRefreshTokenByCodeDto> GetRefreshTokenByCode(string code)
+        public Task<MicrosoftRefreshTokenByCodeDto> GetRefreshTokenByCode(string code, string clientId, string clientSecret, string redirectUrl)
         {
             var client = new RestClient("https://login.microsoftonline.com/common/oauth2/v2.0/token");
             var request = new RestRequest(Method.POST);
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
 
             var qb = new QueryBuilder();
-            qb.Add("client_id", _clientId);
-            qb.Add("redirect_uri", _redirectUrl);
+            qb.Add("client_id", clientId);
+            qb.Add("redirect_uri", redirectUrl);
             qb.Add("grant_type", "authorization_code");
-            qb.Add("client_secret", _clientSecret);
+            qb.Add("client_secret", clientSecret);
             qb.Add("code", code);
             var query = qb.ToQueryString().ToString().Substring(1);
 
@@ -197,17 +185,17 @@ namespace Helios.Api.Utils.Api.Microsoft
             return tcs.Task;
         }
 
-        public Task<string> RetrieveEvents(string calendarId)
+        public Task<IList<OutlookEvent>> RetrieveEvents(string calendarId)
         {
             var client = new RestClient("https://graph.microsoft.com/v1.0/me/calendars/" + calendarId + "/events?%24expand=singleValueExtendedProperties(%24filter%3Did%20eq%20'String%20%7B66f5a359-4659-4830-9070-00040ec6ac6e%7D%20Name%20Helios')");
             var request = new RestRequest(Method.GET);
             request.AddHeader("cache-control", "no-cache");
             request.AddHeader("authorization", $"Bearer {_user.MicrosoftToken}");
 
-            var tcs = new TaskCompletionSource<string>();
+            var tcs = new TaskCompletionSource<IList<OutlookEvent>>();
             client.ExecuteAsync(request, response =>
             {
-                tcs.SetResult(response.Content);
+                tcs.SetResult(JsonConvert.DeserializeObject<MicrosoftEventsRootDto>(response.Content).Value);
             });
 
             return tcs.Task;

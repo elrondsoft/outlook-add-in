@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Helios.Api.Domain.Dtos.Api;
 using Helios.Api.Domain.Dtos.Microsoft;
@@ -16,17 +17,24 @@ using Helios.Api.Utils.Helpers.Task;
 using Helios.Api.Utils.Sync;
 using Helios.Api.Utils.Sync.Comparer;
 using Helios.Api.Utils.Sync.Comparer.Data;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using static System.String;
 
 namespace Helios.Api.Domain.DomainServices
 {
     public class ScheduleDomainService
     {
-        public void SynchronizeAll()
+        public ScheduleDomainService()
+        {
+        }
+
+        public SyncInfoDto SynchronizeAll()
         {
             var db = new HeliosDbContext();
             var users = db.Users.Where(r => r.IsSyncEnabled);
             var entitiesComparer = new EntitiesComparer(new EventId(), new Clock());
+            SyncInfoDto syncInfo = null;
 
             foreach (var user in users)
             {
@@ -37,11 +45,12 @@ namespace Helios.Api.Domain.DomainServices
                 // =======================================================================//
                 // Events                                                                 //
                 // =======================================================================//
+
                 var calendarId = new CalendarHelper(microsoftApi).CreateHeliosCalendarIfNotExists("Helios");
                 var eventsHash = new EventsHash(user).CreateEventsHashIfNotExists();
 
-                IList<HeliosEvent> heliosEvents = EventsHelper.MapHeliosEventsListFromJson(heliosApi.RetrieveEvents().Result);
-                IList<OutlookEvent> outlookEvents = EventsHelper.MapOutlookEventsListFromJson(microsoftApi.RetrieveEvents(calendarId).Result);
+                IList<HeliosEvent> heliosEvents = heliosApi.RetrieveEvents().Result;
+                IList<OutlookEvent> outlookEvents = microsoftApi.RetrieveEvents(calendarId).Result;
 
                 EventsComparerResult eventsComparerResult = entitiesComparer.MergeEvents(heliosEvents, outlookEvents, eventsHash);
 
@@ -53,10 +62,11 @@ namespace Helios.Api.Domain.DomainServices
                 // =======================================================================//
                 // Tasks                                                                  //
                 // =======================================================================//
-                var folderId = new TasksFolderHelper(microsoftApi).CreateHeliosTasksFolderIfNotExists("Helios");
-                var tasksHash = new EventsHash(user).CreateEventsHashIfNotExists();
 
-                IList<HeliosTask> heliosTasks = heliosApi.RetrieveTasks().Result;
+                var folderId = new TasksFolderHelper(microsoftApi).CreateHeliosTasksFolderIfNotExists("Helios");
+                var tasksHash = new TasksHash(user).CreateTasksHashIfNotExists();
+
+                IList<HeliosTask> heliosTasks = heliosApi.RetrieveTasks().Result.Where(r => r.Status.ToLower() != "rejected").ToList();
                 IList<OutlookTask> outlookTasks = microsoftApi.RetrieveTasks(folderId).Result;
 
                 TasksComparerResult tasksComparerResult = entitiesComparer.MergeTasks(heliosTasks, outlookTasks, user, tasksHash);
@@ -64,55 +74,66 @@ namespace Helios.Api.Domain.DomainServices
                 // tasksHash = syncService.SynchronizeHeliosTasks(tasksHash, heliosTasks, tasksComparerResult);
                 // tasksHash = syncService.SynchronizeOutlookTasks(folderId, tasksHash, tasksComparerResult);
 
-                user.TasksSyncHash = JsonConvert.SerializeObject(eventsHash);
+                user.TasksSyncHash = JsonConvert.SerializeObject(tasksHash);
+
+                // =======================================================================//
+                // Sync Info                                                              //
                 // =======================================================================//
 
-                user.LastUpdateInfo = JsonConvert.SerializeObject(UpdateUserSyncInfo(user, eventsComparerResult, tasksComparerResult));
+                syncInfo = UpdateUserSyncInfo(eventsComparerResult, tasksComparerResult);
+                user.LastUpdateInfo = JsonConvert.SerializeObject(syncInfo);
             }
 
             db.SaveChanges();
+
+            return syncInfo;
         }
 
-        private SyncInfoDto UpdateUserSyncInfo(User user, EventsComparerResult eventsComparerResult, TasksComparerResult tasksComparerResult)
+        private SyncInfoDto UpdateUserSyncInfo(EventsComparerResult eventsComparerResult, TasksComparerResult tasksComparerResult)
         {
-            var syncInfoDto = new SyncInfoDto();
+            return new SyncInfoDto
+            {
+                HeliosEventsCreated = eventsComparerResult.HeliosEventsToCreate.Count,
+                HeliosEventsUpdated = eventsComparerResult.HeliosEventsToUpdate.Count,
+                HeliosEventsDeleted = eventsComparerResult.HeliosEventsToDelete.Count,
+                OutlookEventsCreated = eventsComparerResult.OutlookEventsToCreate.Count,
+                OutlookEventsUpdated = eventsComparerResult.OutlookEventsToUpdate.Count,
+                OutlookEventsDeleted = eventsComparerResult.OutlookEventsToDelete.Count,
 
-            syncInfoDto.EventsCreated = eventsComparerResult.HeliosEventsToCreate.Count +
-                                        eventsComparerResult.OutlookEventsToCreate.Count;
-            syncInfoDto.EventsUpdated = eventsComparerResult.HeliosEventsToUpdate.Count +
-                                        eventsComparerResult.OutlookEventsToUpdate.Count;
-            syncInfoDto.EventsDeleted = eventsComparerResult.HeliosEventsToDelete.Count +
-                                        eventsComparerResult.HeliosEventsToDelete.Count;
+                HeliosTasksCreated = tasksComparerResult.HeliosTasksToCreate.Count,
+                HeliosTasksUpdated = tasksComparerResult.HeliosTasksToUpdate.Count,
+                HeliosTasksDeleted = tasksComparerResult.HeliosTasksToDelete.Count,
+                OutlookTasksCreated = tasksComparerResult.OutlookTasksToCreate.Count,
+                OutlookTasksUpdated = tasksComparerResult.OutlookTasksToUpdate.Count,
+                OutlookTasksDeleted = tasksComparerResult.OutlookTasksToDelete.Count,
 
-            syncInfoDto.TasksCreated = tasksComparerResult.HeliosTasksToCreate.Count +
-                                       tasksComparerResult.OutlookTasksToCreate.Count;
-            syncInfoDto.TasksUpdated = tasksComparerResult.HeliosTasksToUpdate.Count +
-                                       tasksComparerResult.OutlookTasksToUpdate.Count;
-            syncInfoDto.TasksDeleted = tasksComparerResult.HeliosTasksToDelete.Count +
-                                       tasksComparerResult.OutlookTasksToDelete.Count;
-
-            syncInfoDto.LastSyncDateTime = DateTime.Now.ToString("u");
-
-            return syncInfoDto;
+                LastSyncDateTime = DateTime.Now.ToString("u")
+            };
         }
 
-        public void ResreshTokens()
+        public int ResreshUsersAccessTokens(string aesKey)
         {
+            int tokenRefreshed = 0;
             var db = new HeliosDbContext();
             var users = db.Users;
 
             foreach (var user in users)
             {
                 /* Microsoft */
-                var microsoftApi = new MicrosoftApi(user, false);
-                user.MicrosoftToken = microsoftApi.UpdateRefreshToken().Result.access_token;
+                user.MicrosoftToken = new MicrosoftApi(user, false).UpdateRefreshToken().Result.access_token;
 
                 /* Helios */
-                var heliosApi = new HeliosApi(user, false);
-                user.HeliosToken = heliosApi.RetrieveToken().Result.AccessToken;
+                user.HeliosToken = new HeliosApi(user, false).RetrieveToken(aesKey).Result.AccessToken;
+
+                if (!IsNullOrEmpty(user.MicrosoftToken) && !IsNullOrEmpty(user.HeliosToken))
+                {
+                    tokenRefreshed++;
+                }
             }
 
             db.SaveChanges();
+
+            return tokenRefreshed;
         }
     }
 }

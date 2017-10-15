@@ -19,7 +19,7 @@ namespace Helios.Tests.Synchronization
 
         public TasksComparerTests()
         {
-            _user = new HeliosDbContext().Users.FirstOrDefault(r => r.Id == 1);
+            _user = new User();
             _clock = new FakeClock();
         }
 

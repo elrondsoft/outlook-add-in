@@ -11,8 +11,8 @@
     var redirectUri = 'https://dev-helios-addin.azurewebsites.net/auth.html';
 
     /* Comment to deploy on prod */
-    // var apiUrl = 'http://localhost:32748';
-    // var redirectUri = 'http://localhost:3000/auth.html';
+    var apiUrl = 'http://localhost:32748';
+    var redirectUri = 'http://localhost:3000/auth.html';
 
     app.value('clientId', clientId);
     app.value('apiUrl', apiUrl);
@@ -37,25 +37,27 @@
         controller: function ($scope, $window, customRouting) {
             var self = this;
 
-            $scope.customRouting = customRouting;
-            $scope.isAuthorized = false;
+            self.customRouting = customRouting;
+            self.isAuthorized = false;
 
             this.$onInit = function () {
                 self.heliosUserEntityId = $window.localStorage.getItem('heliosUserEntityId');
                 self.microsoftToken = $window.localStorage.getItem('microsoftToken');
+
+                if (self.heliosUserEntityId && self.microsoftToken) {
+                    self.navigate('hsSync');
+                }
             };
 
-            $scope.navigate = function (component) {
-                for (var key in $scope.customRouting) {
-                    $scope.customRouting[key] = false;
+            self.navigate = function (component) {
+                for (var key in self.customRouting) {
+                    self.customRouting[key] = false;
                 }
 
                 customRouting[component] = true;
             };
         },
         templateUrl: 'src/app/app.tpl.html',
-        bindings: {
-        }
+        bindings: {}
     });
-
 })();
