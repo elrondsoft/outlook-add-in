@@ -182,7 +182,7 @@ namespace Helios.Api.Utils.Api.Helios
 
         #region Tasks
 
-        public Task<string> CreateTask(HeliosTaskToCreate task)
+        public Task<HeliosTask> CreateTask(HeliosTaskToCreate task)
         {
             var client = new RestClient("https://helios-api.gunnebocloud.com/task/api/Task/create");
             var request = new RestRequest(Method.POST);
@@ -191,10 +191,12 @@ namespace Helios.Api.Utils.Api.Helios
             request.AddHeader("authorization", "Bearer " + _user.HeliosToken);
             request.AddParameter("application/json", JsonConvert.SerializeObject(task), ParameterType.RequestBody);
 
-            var tcs = new TaskCompletionSource<string>();
+            var tcs = new TaskCompletionSource<HeliosTask>();
             client.ExecuteAsync(request, response =>
             {
-                tcs.SetResult(response.Content);
+                var createdTask = RetrieveTasks().Result.First(r => r.Subject == task.Subject && r.Body == task.Body);
+
+                tcs.SetResult(createdTask);
             });
 
             return tcs.Task;

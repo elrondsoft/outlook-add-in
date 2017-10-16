@@ -48,15 +48,18 @@ namespace Helios.Tests.Api
         #region Tasks
 
         [Test]
-        [Ignore("Real Http")]
+        // [Ignore("Real Http")]
         public void CreateTask_ShouldWork()
         {
-            var heliosTask = new HeliosTask("1", "test-task-4", "test-task-4", DateTime.Now, "New", "Low", _user.ApiKey);
+            var heliosTask = new HeliosTask("1", "test-task-4", "test-task-4", DateTime.Now, "New", "Low", _user.ApiKey, DateTime.Now);
             var heliosTaskToCreate = new HeliosTaskToCreate(heliosTask);
-            _heliosApi.CreateTask(heliosTaskToCreate);
+            var createdTask2 = _heliosApi.CreateTask(heliosTaskToCreate);
 
-            var createdTask = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Subject == heliosTask.Subject);
-            Assert.AreEqual(true, createdTask != null);
+            Console.WriteLine(JsonConvert.SerializeObject(createdTask2.Result));
+
+
+           // var createdTask = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Subject == "test-task-2");
+           // Assert.AreEqual(true, createdTask != null);
         }
 
         [Test]
@@ -71,7 +74,7 @@ namespace Helios.Tests.Api
         [Ignore("Real Http")]
         public void UpdateTask_ShouldWork()
         {
-            var heliosTask = new HeliosTask("3c517f1f-e51d-4732-9544-b9006b024fe7", "test-task-33", "test-task-33", DateTime.Now, "New", "Low", _user.ApiKey);
+            var heliosTask = new HeliosTask("3c517f1f-e51d-4732-9544-b9006b024fe7", "test-task-33", "test-task-33", DateTime.Now, "New", "Low", _user.ApiKey, DateTime.Now);
             var heliosTaskToUpdate = new HeliosTaskToUpdate(heliosTask);
             _heliosApi.UpdateTask(heliosTaskToUpdate);
 

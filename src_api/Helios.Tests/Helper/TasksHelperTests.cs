@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Helios.Api.Domain.Entities.MainModule;
 using Helios.Api.Domain.Entities.PluginModule.Helios;
 using Helios.Api.Domain.Entities.PluginModule.Microsoft;
@@ -25,7 +26,7 @@ namespace Helios.Tests.Helper
         [Test]
         public void TasksAreEquatl_ShouldWork()
         {
-            var heliosTask = new HeliosTask("task-1", "subject-1", "body-1", _clock.Now, "New", "Low", _user.ApiKey);
+            var heliosTask = new HeliosTask("task-1", "subject-1", "body-1", _clock.Now, "New", "Low", _user.ApiKey, DateTime.Now);
 
             var outlookTask = new OutlookTask()
             {
@@ -54,6 +55,7 @@ namespace Helios.Tests.Helper
             };
 
             var heliosTask = TasksHelper.MapToHeliosTask(originalOutlookTask.Id, originalOutlookTask, _clock, _user);
+            // Console.WriteLine(JsonConvert.SerializeObject(heliosTask));
             var newOutlookTask = TasksHelper.MapToOutlookTask(heliosTask.Id, heliosTask, _clock);
 
             Assert.AreEqual(TasksHelper.TasksAreEqual(heliosTask, originalOutlookTask), true);

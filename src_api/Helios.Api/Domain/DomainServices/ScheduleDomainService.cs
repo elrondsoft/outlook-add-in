@@ -71,8 +71,8 @@ namespace Helios.Api.Domain.DomainServices
 
                 TasksComparerResult tasksComparerResult = entitiesComparer.MergeTasks(heliosTasks, outlookTasks, user, tasksHash);
 
-                // tasksHash = syncService.SynchronizeHeliosTasks(tasksHash, heliosTasks, tasksComparerResult);
-                // tasksHash = syncService.SynchronizeOutlookTasks(folderId, tasksHash, tasksComparerResult);
+                // tasksHash = syncService.SynchronizeHeliosTasks(tasksHash, tasksComparerResult, user);
+                tasksHash = syncService.SynchronizeOutlookTasks(folderId, tasksHash, tasksComparerResult);
 
                 user.TasksSyncHash = JsonConvert.SerializeObject(tasksHash);
 

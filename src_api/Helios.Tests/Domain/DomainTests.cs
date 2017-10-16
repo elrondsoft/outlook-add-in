@@ -36,7 +36,7 @@ namespace Helios.Tests.Domain
             
         }
 
-        [Test] // TODO: this is a useless test, but it makes me feel that everything is ok
+        [Test] // This is formal intergration test
         //  [Ignore("Real Database")]
         public void RefresUsersAccessTokens__ShouldWork()
         {
@@ -45,8 +45,8 @@ namespace Helios.Tests.Domain
             Assert.AreEqual(usersAmount, tokenUpdated);
         }
 
-        [Test] // TODO: this is a useless test, but it makes me feel that everything is ok
-        //  [Ignore("Real Database")]
+        [Test] // This is formal intergration test
+        // [Ignore("Real Database")]
         public void SynchronizationShouldWork__ShouldWork()
         {
             var heliosApi = new HeliosApi(_user, true);
@@ -86,8 +86,8 @@ namespace Helios.Tests.Domain
             Assert.AreEqual(heliosEventsBefore, heliosEventsAfter + syncResult.HeliosEventsCreated - syncResult.HeliosEventsDeleted);
             Assert.AreEqual(outlookEventsBefore, outlookEventsAfter + syncResult.OutlookEventsCreated - syncResult.OutlookEventsDeleted);
 
-            // Assert.AreEqual(heliosTasksBefore, heliosTasksAfter + syncResult.HeliosTasksCreated - syncResult.HeliosTasksDeleted);
-            // Assert.AreEqual(outlookTasksBefore, outlookTasksAfter + syncResult.OutlookTasksCreated - syncResult.OutlookTasksDeleted);
+            Assert.AreEqual(heliosTasksBefore, heliosTasksAfter + syncResult.HeliosTasksCreated - syncResult.HeliosTasksDeleted);
+            Assert.AreEqual(outlookTasksBefore, outlookTasksAfter + syncResult.OutlookTasksCreated - syncResult.OutlookTasksDeleted);
         }
     }
 }

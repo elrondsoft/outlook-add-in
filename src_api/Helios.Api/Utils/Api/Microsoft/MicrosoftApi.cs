@@ -21,11 +21,11 @@ namespace Helios.Api.Utils.Api.Microsoft
     public class MicrosoftApi : IMicrosoftApi
     {
         private readonly User _user;
-        
+
         public MicrosoftApi(User user, bool isTokenNeeded)
         {
             _user = user;
-            
+
             if (isTokenNeeded)
             {
                 CheckTokenExpiration();
@@ -280,14 +280,34 @@ namespace Helios.Api.Utils.Api.Microsoft
 
         #region Tasks
 
-        public Task<OutlookTask> CreateTask(string folderId, OutlookTask task)
+
+        public Task<OutlookTask> _CreateTask(string folderId, OutlookTask task)
         {
             CheckTokenExpiration();
-            var json = Newtonsoft.Json.JsonConvert.SerializeObject(task);
+            var json = JsonConvert.SerializeObject(task);
 
             var client = new RestClient("https://graph.microsoft.com/beta/me/outlook/taskFolders/" + folderId + "/tasks");
             var request = new RestRequest(Method.POST);
-            request.AddHeader("cache-control", "no-cache");
+            request.AddHeader("content-type", "application/json");
+            request.AddHeader("authorization", $"Bearer {_user.MicrosoftToken}");
+            request.AddParameter("application/json", json, ParameterType.RequestBody);
+
+            var tcs = new TaskCompletionSource<OutlookTask>();
+            client.ExecuteAsync(request, response =>
+            {
+                tcs.SetResult(JsonConvert.DeserializeObject<OutlookTask>(response.Content));
+            });
+
+            return tcs.Task;
+        }
+
+        public Task<OutlookTask> CreateTask(string folderId, OutlookTask task)
+        {
+            CheckTokenExpiration();
+            var json = "{\n  \"subject\": \"" + task.Subject + "\",\n  \"body\": {\n    \"content\": \"" + task.Body.Content + "\",\n    \"contentType\": \"" + task.Body.ContentType + "\"\n  },\n  \"importance\": \"" + task.Importance + "\",\n  \"status\": \"" + task.Status + "\",\n  \n  \"dueDateTime\": {\n    \"dateTime\": \" " + task.DueDateTime.DateTime.ToString() + " \",\n    \"timeZone\": \"" + task.DueDateTime.TimeZone + "\"\n  }\n}";
+
+            var client = new RestClient("https://graph.microsoft.com/beta/me/outlook/taskFolders/" + folderId + "/tasks");
+            var request = new RestRequest(Method.POST);
             request.AddHeader("content-type", "application/json");
             request.AddHeader("authorization", $"Bearer {_user.MicrosoftToken}");
             request.AddParameter("application/json", json, ParameterType.RequestBody);

@@ -28,7 +28,7 @@ namespace Helios.Api.Domain.Entities.PluginModule.Helios
 
         public HeliosTask() { }
 
-        public HeliosTask(string id, string subject, string body, DateTime dueDateTime, string status, string importance, string apiKey)
+        public HeliosTask(string id, string subject, string body, DateTime dueDateTime, string status, string importance, string apiKey, DateTime lastModified)
         {
             Id = id;
             Subject = subject;
@@ -37,6 +37,7 @@ namespace Helios.Api.Domain.Entities.PluginModule.Helios
             Status = status;
             Importance = importance;
             ApiKey = apiKey;
+            LastModified = lastModified;
         }
     }
 

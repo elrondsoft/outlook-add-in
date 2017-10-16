@@ -71,11 +71,12 @@ namespace Helios.Api.Utils.Sync
 
         public Dictionary<string, string> SynchronizeOutlookTasks(string folderId, Dictionary<string, string> tasksHash, TasksComparerResult tasksComparerResult)
         {
+            var createdTasksCounter = 0;
             foreach (var outlookTask in tasksComparerResult.OutlookTasksToCreate)
-            {
+            { 
                 var createdOutlookTask = _microsoftApi.CreateTask(folderId, outlookTask).Result;
 
-                var temporaryTaskId = createdOutlookTask.Subject + createdOutlookTask.DueDateTime.DateTime;
+                var temporaryTaskId = createdOutlookTask.Subject + "-" + createdTasksCounter++;
                 var kvp = tasksHash.SingleOrDefault(p => p.Value == temporaryTaskId);
                 tasksHash[kvp.Key] = createdOutlookTask.Id;
             }
@@ -95,9 +96,16 @@ namespace Helios.Api.Utils.Sync
 
         public Dictionary<string, string> SynchronizeHeliosTasks(Dictionary<string, string> tasksHash, TasksComparerResult tasksComparerResult, User user)
         {
+            var createdTasksCounter = 0;
             foreach (var heliosTask in tasksComparerResult.HeliosTasksToCreate)
             {
-                _heliosApi.CreateTask(new HeliosTaskToCreate(heliosTask));
+                var createdHeliosTask = _heliosApi.CreateTask(new HeliosTaskToCreate(heliosTask)).Result;
+
+                var temporaryTaskId = createdHeliosTask.Subject + "-" + createdTasksCounter++;
+                var kvp = tasksHash.SingleOrDefault(p => p.Key == temporaryTaskId);
+
+                tasksHash.Remove(kvp.Key);
+                tasksHash[createdHeliosTask.Id] = kvp.Value;
             }
 
             foreach (var heliosTask in tasksComparerResult.HeliosTasksToUpdate)
