@@ -288,14 +288,14 @@ namespace Helios.Api.Utils.Api.Helios
 
         public void CompleteTask(string taskId, string apiKey)
         {
-            AcceptTask(taskId, apiKey);
-            CompleteTaskInner(taskId, apiKey);
+            var acceptResult = AcceptTask(taskId, apiKey).Result;
+            var completeResult = CompleteTaskInner(taskId, apiKey).Result;
         }
 
         public void RejectTask(string taskId, string apiKey)
         {
-            AcceptTask(taskId, apiKey);
-            RejectTaskInner(taskId, apiKey);
+            var acceptResult = AcceptTask(taskId, apiKey).Result;
+            var completeResult = RejectTaskInner(taskId, apiKey).Result;
         }
 
         #endregion

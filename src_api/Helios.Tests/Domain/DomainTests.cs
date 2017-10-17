@@ -57,14 +57,14 @@ namespace Helios.Tests.Domain
 
             var heliosEventsBefore = heliosApi.RetrieveEvents().Result.Count;
             var outlookEventsBefore = microsoftApi.RetrieveEvents(calendarId).Result.Count;
-            var heliosTasksBefore = heliosApi.RetrieveTasks().Result.Count;
+            var heliosTasksBefore = heliosApi.RetrieveTasks().Result.Where(r => r.Status.ToLower() != "rejected").ToList().Count;
             var outlookTasksBefore = microsoftApi.RetrieveTasks(folderId).Result.Count;
 
             var syncResult = new ScheduleDomainService().SynchronizeAll();
 
             var heliosEventsAfter = heliosApi.RetrieveEvents().Result.Count;
             var outlookEventsAfter = microsoftApi.RetrieveEvents(calendarId).Result.Count;
-            var heliosTasksAfter = heliosApi.RetrieveTasks().Result.Count;
+            var heliosTasksAfter = heliosApi.RetrieveTasks().Result.Where(r => r.Status.ToLower() != "rejected").ToList().Count;
             var outlookTasksAfter = microsoftApi.RetrieveTasks(folderId).Result.Count;
 
             var str = $"HeliosEventsCreated = {syncResult.HeliosEventsCreated} \n" +
@@ -76,18 +76,20 @@ namespace Helios.Tests.Domain
                       $"OutlookEventsDeleted = {syncResult.OutlookEventsDeleted} \n\n" +
 
                       $"HeliosTasksCreated = {syncResult.HeliosTasksCreated} \n" +
-                      $"HeliosTasksUpdated = {syncResult.HeliosTasksUpdated} \n\n" +
+                      $"HeliosTasksUpdated = {syncResult.HeliosTasksUpdated} \n" +
+                      $"HeliosTasksDeleted = {syncResult.HeliosTasksDeleted} \n\n" +
 
                       $"OutlookTasksCreated = {syncResult.OutlookTasksCreated} \n" +
-                      $"OutlookTasksUpdated = {syncResult.OutlookTasksUpdated} \n";
+                      $"OutlookTasksUpdated = {syncResult.OutlookTasksUpdated} \n" +
+                      $"OutlookTasksDeleted = {syncResult.OutlookTasksDeleted} \n";
 
             Console.WriteLine(str);
 
-            Assert.AreEqual(heliosEventsBefore, heliosEventsAfter + syncResult.HeliosEventsCreated - syncResult.HeliosEventsDeleted);
-            Assert.AreEqual(outlookEventsBefore, outlookEventsAfter + syncResult.OutlookEventsCreated - syncResult.OutlookEventsDeleted);
+            Assert.AreEqual(heliosEventsAfter, heliosEventsBefore + syncResult.HeliosEventsCreated - syncResult.HeliosEventsDeleted);
+            Assert.AreEqual(outlookEventsAfter, outlookEventsBefore + syncResult.OutlookEventsCreated - syncResult.OutlookEventsDeleted);
 
-            Assert.AreEqual(heliosTasksBefore, heliosTasksAfter + syncResult.HeliosTasksCreated - syncResult.HeliosTasksDeleted);
-            Assert.AreEqual(outlookTasksBefore, outlookTasksAfter + syncResult.OutlookTasksCreated - syncResult.OutlookTasksDeleted);
+            Assert.AreEqual(outlookTasksAfter, outlookTasksBefore + syncResult.OutlookTasksCreated - syncResult.OutlookTasksDeleted);
+            Assert.AreEqual(heliosTasksAfter, heliosTasksBefore + syncResult.HeliosTasksCreated - syncResult.HeliosTasksDeleted);
         }
     }
 }

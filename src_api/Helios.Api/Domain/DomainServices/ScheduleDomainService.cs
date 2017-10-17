@@ -29,10 +29,14 @@ namespace Helios.Api.Domain.DomainServices
         {
         }
 
-        public SyncInfoDto SynchronizeAll()
+        public SyncInfoDto SynchronizeAll(string userEntityId = null)
         {
             var db = new HeliosDbContext();
             var users = db.Users.Where(r => r.IsSyncEnabled);
+            if (userEntityId != null)
+            {
+                users = db.Users.Where(r => r.EntityId == userEntityId);
+            }
             var entitiesComparer = new EntitiesComparer(new EventId(), new Clock());
             SyncInfoDto syncInfo = null;
 
@@ -71,7 +75,7 @@ namespace Helios.Api.Domain.DomainServices
 
                 TasksComparerResult tasksComparerResult = entitiesComparer.MergeTasks(heliosTasks, outlookTasks, user, tasksHash);
 
-                // tasksHash = syncService.SynchronizeHeliosTasks(tasksHash, tasksComparerResult, user);
+                tasksHash = syncService.SynchronizeHeliosTasks(tasksHash, tasksComparerResult, user);
                 tasksHash = syncService.SynchronizeOutlookTasks(folderId, tasksHash, tasksComparerResult);
 
                 user.TasksSyncHash = JsonConvert.SerializeObject(tasksHash);
