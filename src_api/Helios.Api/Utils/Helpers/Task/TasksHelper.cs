@@ -33,7 +33,7 @@ namespace Helios.Api.Utils.Helpers.Task
         public static HeliosTask MapToHeliosTask(string id, OutlookTask outlookTask, IClock clock, User user)
         {
             return new HeliosTask(id, outlookTask.Subject, outlookTask.Body.Content, outlookTask.DueDateTime.DateTime,
-                MapToHeliosStatus(outlookTask.Status), outlookTask.Importance, user.ApiKey);
+                MapToHeliosStatus(outlookTask.Status), MapToHeliosImportance(outlookTask.Importance), user.ApiKey, clock.Now);
         }
 
         public static OutlookTask MapToOutlookTask(string id, HeliosTask heliosTask, IClock clock)
@@ -67,6 +67,20 @@ namespace Helios.Api.Utils.Helpers.Task
                 heliosTaskStatus = "Accepted";
             if (outlookTaskStatus == "completed")
                 heliosTaskStatus = "Completed";
+
+            return heliosTaskStatus;
+        }
+
+        private static string MapToHeliosImportance(string outlookImportance)
+        {
+            var heliosTaskStatus = "Low";
+
+            if (outlookImportance.ToLower() == "low")
+                heliosTaskStatus = "Low";
+            if (outlookImportance.ToLower() == "normal")
+                heliosTaskStatus = "Normal";
+            if (outlookImportance.ToLower() == "high")
+                heliosTaskStatus = "High";
 
             return heliosTaskStatus;
         }

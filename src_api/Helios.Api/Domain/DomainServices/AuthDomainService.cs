@@ -30,7 +30,7 @@ namespace Helios.Api.Domain.DomainServices
         {
             var responce = new HeliosAuthResponceDto();
             var db = new HeliosDbContext();
-            
+
             var user = db.Users.FirstOrDefault(r => r.HeliosLogin == request.Login);
             if (user != null)
             {
@@ -42,7 +42,7 @@ namespace Helios.Api.Domain.DomainServices
             var newUser = new User() { HeliosLogin = request.Login, HeliosPassword = passwordHash };
             var heliosApi = new HeliosApi(newUser, false);
 
-            var heliosTokenResponceDto = heliosApi.RetrieveToken().Result;
+            var heliosTokenResponceDto = heliosApi.RetrieveToken(_configuration["AesKey"]).Result;
             if (heliosTokenResponceDto.AccessToken == null)
             {
                 responce.Error = "Wrong Credentials!";
@@ -54,7 +54,7 @@ namespace Helios.Api.Domain.DomainServices
             var entityIdResponceDto = heliosApi.RetrieveUserEntityId().Result;
             newUser.EntityId = entityIdResponceDto.UserEntityId;
             newUser.ApiKey = entityIdResponceDto.ApiKey;
-            
+
             responce.EntityId = newUser.EntityId;
 
             db.Users.Add(newUser);
@@ -62,11 +62,11 @@ namespace Helios.Api.Domain.DomainServices
 
             return responce;
         }
-        
+
         public MicrosoftAuthResponceDto MicrosoftAuth(MicrosoftAuthRequestDto request)
         {
             var responce = new MicrosoftAuthResponceDto();
-            
+
             if (request.UserEntityId == null)
             {
                 responce.Error = "UserEntityId is Missing";
@@ -80,8 +80,12 @@ namespace Helios.Api.Domain.DomainServices
                 responce.Error = "Wrong UserID";
                 return responce;
             }
-            
-            var result = new MicrosoftApi(user, false).GetRefreshTokenByCode(request.Code).Result;
+
+            var clientId = _configuration["CliendId"];
+            var clientSecret = _configuration["ClientSecret"];
+            var redirectUrl = _configuration["RedirectUrl"];
+
+            var result = new MicrosoftApi(user, false).GetRefreshTokenByCode(request.Code, clientId, clientSecret, redirectUrl).Result;
 
             if (result.access_token == null)
             {

@@ -1,22 +1,29 @@
-﻿using Helios.Api.Domain.Entities.MainModule;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using Helios.Api.Domain.Entities.MainModule;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Helios.Api.EFContext
 {
     public class HeliosDbContext : DbContext
     {
         #region DbSets
-
         public virtual DbSet<User> Users { get; set; }
-
         #endregion
 
-        public HeliosDbContext(): base()
-        { }
+        public HeliosDbContext() : base()
+        {}
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=dealer-advance.database.windows.net;Database=helios;User Id=toto; Password=Qwert12345;");
+            var dbServer = "general-mssql-dev.database.windows.net";
+            var dbName = "dev_helios";
+            var dbLogin = "toto";
+            var dbPassword = "489AWLh2yc9NRcaD";
+
+            optionsBuilder.UseSqlServer($"Server={dbServer}; Database={dbName}; User Id={dbLogin}; Password={dbPassword};");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

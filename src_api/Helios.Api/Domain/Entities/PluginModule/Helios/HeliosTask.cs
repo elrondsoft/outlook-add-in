@@ -28,7 +28,7 @@ namespace Helios.Api.Domain.Entities.PluginModule.Helios
 
         public HeliosTask() { }
 
-        public HeliosTask(string id, string subject, string body, DateTime dueDateTime, string status, string importance, string apiKey)
+        public HeliosTask(string id, string subject, string body, DateTime dueDateTime, string status, string importance, string apiKey, DateTime lastModified)
         {
             Id = id;
             Subject = subject;
@@ -37,6 +37,7 @@ namespace Helios.Api.Domain.Entities.PluginModule.Helios
             Status = status;
             Importance = importance;
             ApiKey = apiKey;
+            LastModified = lastModified;
         }
     }
 
@@ -50,8 +51,6 @@ namespace Helios.Api.Domain.Entities.PluginModule.Helios
         public string Body { get; set; }
         [JsonProperty("DueDate")]
         public DateTime DueDateTime { get; set; }
-        [JsonProperty("status")]
-        public string Status { get; set; }
         [JsonProperty("Priority")]
         public string Importance { get; set; }
         [JsonProperty("AssignedTo")]
@@ -71,7 +70,6 @@ namespace Helios.Api.Domain.Entities.PluginModule.Helios
             Subject = task.Subject;
             Body = task.Body;
             DueDateTime = task.DueDateTime;
-            Status = task.Status;
             Importance = task.Importance;
             ApiKey = task.ApiKey;
         }

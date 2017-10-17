@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Helios.Api.Domain.Entities.MainModule;
 using Helios.Api.Domain.Entities.PluginModule.Helios;
 using Helios.Api.EFContext;
@@ -9,7 +9,7 @@ using Helios.Api.Utils.Helpers.ClockHelper;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace Helios.Tests.Integration
+namespace Helios.Tests.Api
 {
     [TestFixture]
     public sealed class HeliosApiIntegrationTests
@@ -31,7 +31,7 @@ namespace Helios.Tests.Integration
         [Ignore("Real Http")]
         public void RetrieveToken__ShouldWork()
         {
-            var result = _heliosApi.RetrieveToken().Result;
+            var result = _heliosApi.RetrieveToken("").Result;
             Assert.AreEqual(result.AccessToken != null, true);
         }
 
@@ -48,15 +48,18 @@ namespace Helios.Tests.Integration
         #region Tasks
 
         [Test]
-        [Ignore("Real Http")]
+        // [Ignore("Real Http")]
         public void CreateTask_ShouldWork()
         {
-            var heliosTask = new HeliosTask("1", "test-task-4", "test-task-4", DateTime.Now, "New", "Low", _user.ApiKey);
+            var heliosTask = new HeliosTask("1", "test-task-4", "test-task-4", DateTime.Now, "New", "Low", _user.ApiKey, DateTime.Now);
             var heliosTaskToCreate = new HeliosTaskToCreate(heliosTask);
-            _heliosApi.CreateTask(heliosTaskToCreate);
+            var createdTask2 = _heliosApi.CreateTask(heliosTaskToCreate);
 
-            var createdTask = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Subject == heliosTask.Subject);
-            Assert.AreEqual(true, createdTask != null);
+            Console.WriteLine(JsonConvert.SerializeObject(createdTask2.Result));
+
+
+           // var createdTask = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Subject == "test-task-2");
+           // Assert.AreEqual(true, createdTask != null);
         }
 
         [Test]
@@ -71,7 +74,7 @@ namespace Helios.Tests.Integration
         [Ignore("Real Http")]
         public void UpdateTask_ShouldWork()
         {
-            var heliosTask = new HeliosTask("a4be6274-9258-4f22-aca5-3280274ee0bd", "test-task-555", "test-task-4", DateTime.Now, "New", "Low", _user.ApiKey);
+            var heliosTask = new HeliosTask("3c517f1f-e51d-4732-9544-b9006b024fe7", "test-task-33", "test-task-33", DateTime.Now, "New", "Low", _user.ApiKey, DateTime.Now);
             var heliosTaskToUpdate = new HeliosTaskToUpdate(heliosTask);
             _heliosApi.UpdateTask(heliosTaskToUpdate);
 
@@ -82,19 +85,26 @@ namespace Helios.Tests.Integration
 
         [Test]
         [Ignore("Real Http")]
-        public void CreateAndUpdateTask_ShouldWork()
+        public void CompleteTask_ShouldWork()
         {
-            var heliosTask = new HeliosTask("a4be6274-9258-4f22-aca5-3280274ee0bd", "test-task-555", "test-task-4", DateTime.Now, "New", "Low", _user.ApiKey);
-            var heliosTaskToCreate = new HeliosTaskToCreate(heliosTask);
-            _heliosApi.CreateTask(heliosTaskToCreate);
-            var createdTask = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Subject == heliosTask.Subject);
-            
-            createdTask.Subject = "test-task-666";
-            var heliosTaskToUpdate = new HeliosTaskToUpdate(createdTask);
-            _heliosApi.UpdateTask(heliosTaskToUpdate);
-            var updatedTask = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Subject == heliosTaskToUpdate.Subject);
+            var taskId = "a6beaaba-34eb-49bb-9a28-baf5d91812cb";
+            _heliosApi.CompleteTask(taskId, _user.ApiKey);
+            _heliosApi.CompleteTask(taskId, _user.ApiKey);
 
-            Assert.AreEqual(true, updatedTask != null);
+            var status = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Id == taskId).Status;
+            Assert.AreEqual("completed", status.ToLower());
+        }
+
+        [Test]
+        [Ignore("Real Http")]
+        public void RejectTask_ShouldWork()
+        {
+            var taskId = "";
+            _heliosApi.RejectTask(taskId, _user.ApiKey);
+            _heliosApi.RejectTask(taskId, _user.ApiKey);
+
+            var status = _heliosApi.RetrieveTasks().Result.FirstOrDefault(r => r.Id == taskId).Status;
+            Assert.AreEqual("rejected", status.ToLower());
         }
 
         #endregion

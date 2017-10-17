@@ -18,6 +18,16 @@ namespace Helios.Tests.Synchronization.Data
             _idItegrator = 1;
         }
 
+        public Task<MicrosoftRefreshTokenByCodeDto> GetRefreshTokenByCode(string code, string clientId, string redirectUrl, string clientSecret)
+        {
+            return null;
+        }
+
+        public Task<MicrosoftRefreshTokenUpdateResponceDto> UpdateRefreshToken()
+        {
+            return null;
+        }
+
         public Task<string> CreateCalendar(string calendarName)
         {
             _taskCompletionSource.SetResult("111");
@@ -27,7 +37,7 @@ namespace Helios.Tests.Synchronization.Data
 
         public Task<string> RetrieveCalendars()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public Task<string> CreateEvent(string calendarId, OutlookEvent outlookEvent)
@@ -41,9 +51,9 @@ namespace Helios.Tests.Synchronization.Data
             return taskCompletionSource.Task;
         }
 
-        public Task<string> RetrieveEvents(string calendarId)
+        public Task<IList<OutlookEvent>> RetrieveEvents(string calendarId)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public Task<string> UpdateEvent(OutlookEvent @event)
@@ -58,72 +68,37 @@ namespace Helios.Tests.Synchronization.Data
 
         public Task<string> RetrieveTaskFolders()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public Task<string> CreateTaskFolder(string folderName)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
-        public Task<string> CreateTask(OutlookTask task, string folderId)
+        public Task<OutlookTask> CreateTask(string folderId, OutlookTask task)
         {
-            throw new NotImplementedException();
+            task.Id = "generated-outlook-task-id-" + _idItegrator++;
+            
+            TaskCompletionSource<OutlookTask> taskCompletionSource = new TaskCompletionSource<OutlookTask>();
+            taskCompletionSource.SetResult(task);
+
+            return taskCompletionSource.Task;
         }
 
-        public Task<string> RetrieveTasks(string folderId)
+        public Task<IList<OutlookTask>> RetrieveTasks(string folderId)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
-        public Task<string> CreateTask(OutlookTask task)
+        public Task<OutlookTask> UpdateTask(OutlookTask task)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> RetrieveTasks()
-        {
-            throw new NotImplementedException();
+            return null;
         }
 
         public Task<string> DeleteTask(string taskId)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> CreateTask(string folderId, OutlookTask task)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> UpdateTask(OutlookTask task)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<MicrosoftRefreshTokenByCodeDto> GetRefreshTokenByCode(string code)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<MicrosoftRefreshTokenUpdateResponceDto> UpdateRefreshToken()
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<OutlookTask> IMicrosoftApi.CreateTask(string folderId, OutlookTask task)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<IList<OutlookTask>> IMicrosoftApi.RetrieveTasks(string folderId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<OutlookTask> IMicrosoftApi.UpdateTask(OutlookTask task)
-        {
-            throw new NotImplementedException();
+            return null;
         }
     }
 }

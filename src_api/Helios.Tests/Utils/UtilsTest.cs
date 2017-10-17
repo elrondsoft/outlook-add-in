@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
+using Helios.Api.Domain.Extensions;
 using Helios.Api.Utils.Encryption.Providers;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Configuration;
@@ -27,9 +29,12 @@ namespace Helios.Tests.Utils
         }
 
         [Test]
-        public void DateTimeFormat_ExpectedBehavior()
+        public void ExtractTextFromHtml_ExpectedBehavior()
         {
-            DateTime.Now.ToString("u");
+            var html = "<html>\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\r\n<meta name=\"Generator\" content=\"Microsoft Exchange Server\">\r\n<!-- converted from rtf -->\r\n<style><!-- .EmailQuote { margin-left: 1pt; padding-left: 4pt; border-left: #800000 2px solid; } --></style>\r\n</head>\r\n<body>\r\n<font face=\"Calibri\" size=\"2\"><span style=\"font-size:11pt;\">\r\n<div>test-task-226</div>\r\n<div>&nbsp;</div>\r\n</span></font>\r\n</body>\r\n</html>\r\n";
+            var plainText = html.HtmlToPlainText();
+
+            Console.WriteLine($"plainText = {plainText}");
         }
     }
 }

@@ -1,8 +1,11 @@
-<div class="card">
-    <div class="card-header">
+<p></p>
+<p>
+    <a class="btn btn-light w-100" data-toggle="collapse" href="#outlookAuth" aria-expanded="false" aria-controls="outlookAuth">
         <b class="text-primary">Outlook</b> Auth
-    </div>
-    <div class="card-body">
+    </a>
+</p>
+<div class="collapse" id="outlookAuth">
+    <div class="card card-body">
         <p ng-if="!$ctrl.microsoftToken">Authentication with OAuth</p>
 
         <div class="alert alert-danger" role="alert" ng-if="$ctrl.isError">

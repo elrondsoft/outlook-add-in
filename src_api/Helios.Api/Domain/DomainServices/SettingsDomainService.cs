@@ -2,6 +2,7 @@
 using Helios.Api.Controllers;
 using Helios.Api.Domain.Dtos.Api;
 using Helios.Api.EFContext;
+using Newtonsoft.Json;
 
 namespace Helios.Api.Domain.DomainServices
 {
@@ -27,7 +28,14 @@ namespace Helios.Api.Domain.DomainServices
             }
 
             responce.IsSyncEnabled = user.IsSyncEnabled;
-            responce.SyncInfo = user.LastUpdateInfo;
+            if (responce.IsSyncEnabled)
+            {
+                var syncInfoDto = JsonConvert.DeserializeObject<SyncInfoDto>(user.LastUpdateInfo);
+                var syncInfo = new ClientSyncInfoDto(syncInfoDto);
+
+                responce.SyncInfo = JsonConvert.SerializeObject(syncInfo);
+            }
+            
             return responce;
         }
 
@@ -56,13 +64,15 @@ namespace Helios.Api.Domain.DomainServices
 
             if (isSyncEnabled)
             {
-                new ScheduleDomainService().SynchronizeAll();
-                db = new HeliosDbContext();
-                user = db.Users.FirstOrDefault(r => r.EntityId == request.UserEntityId);
+                var syncInfo = new ClientSyncInfoDto(new ScheduleDomainService().SynchronizeAll(user.EntityId));
+                responce.SyncInfo = JsonConvert.SerializeObject(syncInfo);
             }
-            
+            else
+            {
+                responce.SyncInfo = null;
+            }
+
             responce.IsSyncEnabled = user.IsSyncEnabled;
-            responce.SyncInfo = user.LastUpdateInfo;
 
             return responce;
         }

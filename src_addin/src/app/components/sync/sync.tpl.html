@@ -1,32 +1,55 @@
 <div class="starter-template">
     <h2>Synchronization</h2>
 </div>
-<p></p>
-<div class="card">
-    <div class="card-header">
-        Synchronization status <span ng-show="$ctrl.idLoading">Loading ...</span>
-    </div>
-    <div class="card-body">
-        <div class="alert alert-danger" role="alert" ng-if="$ctrl.isError">
-            {{$ctrl.errorText}}
-        </div>
 
+<p></p>
+<p>
+    <a class="btn btn-light w-100" data-toggle="collapse" href="#syncOptions" aria-expanded="false" aria-controls="syncOptions">
+        Sync Options
+    </a>
+</p>
+<div class="collapse" id="syncOptions">
+    <div class="card card-body">
+        <b class="text-secondary">Sync Interval:</b> <b class="text-primary">1 minute</b><br>
+        <b class="text-secondary">Sync Merge:</b> <b class="text-primary">Take oldest</b>
+    </div>
+</div>
+
+<p></p>
+<p>
+    <a class="btn btn-light w-100" data-toggle="collapse" href="#syncStatus" aria-expanded="false" aria-controls="syncStatus">
+        Sync Status
+    </a>
+</p>
+<div class="collapse" id="syncStatus">
+    <div class="card card-body">
         <div class="btn-group" role="group" aria-label="Basic example">
-            <button type="button" class="btn" ng-disabled="$ctrl.idLocked" ng-class="!$ctrl.isSyncEnabled ? 'btn-danger' : 'btn-secondary'" ng-click="$ctrl.disableSync()">
+            <button type="button" class="btn w-50" ng-disabled="$ctrl.idLocked" ng-class="!$ctrl.isSyncEnabled ? 'btn-danger' : 'btn-secondary'" ng-click="$ctrl.disableSync()">
                 <div ng-if="!$ctrl.isSyncEnabled">Disabled</div>
                 <div ng-if="$ctrl.isSyncEnabled">Disable</div>
             </button>
 
-            <button type="button" class="btn" ng-disabled="$ctrl.idLocked" ng-class="$ctrl.isSyncEnabled ? 'btn-success' : 'btn-secondary'" ng-click="$ctrl.enableSync()">
+            <button type="button" class="btn w-50" ng-disabled="$ctrl.idLocked" ng-class="$ctrl.isSyncEnabled ? 'btn-success' : 'btn-secondary'" ng-click="$ctrl.enableSync()">
                 <div ng-if="$ctrl.isSyncEnabled">Enabled</div>
                 <div ng-if="!$ctrl.isSyncEnabled">Enable</div>
             </button>
         </div>
     </div>
 </div>
+
+<p ng-if="$ctrl.isError"></p>
+<div class="alert alert-danger" role="alert" ng-if="$ctrl.isError">
+    {{$ctrl.errorText}}
+</div>
+
+<p ng-if="$ctrl.idLoading"></p>
+<div class="progress" ng-if="$ctrl.idLoading">
+    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+</div>
+
 <p></p>
-<div class="alert alert-primary" role="alert">
-    <p class="text-center"><b>Last Sync</b><br> {{$ctrl.syncInfo['LastSyncDateTime']}}</p>
+<div ng-if="$ctrl.syncInfo" class="alert alert-success" role="alert">
+    <p><b>Last Sync</b><br>{{$ctrl.syncInfo['LastSyncDateTime']}}</p>
     <b>Events</b>
     <div class="row">
         <div class="col-4">Created:</div>
@@ -36,7 +59,8 @@
         <div class="col-4">Deleted:</div>
         <div class="col-8 text-right"><b>{{$ctrl.syncInfo.EventsDeleted}}</b></div>
     </div>
-    <br>
+    <hr>
+
     <b>Tasks</b>
     <div class="row">
         <div class="col-4">Created:</div>

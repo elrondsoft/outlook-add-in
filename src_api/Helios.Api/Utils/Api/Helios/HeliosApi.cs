@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Helios.Api.Domain.Dtos.Helios;
 using Helios.Api.Domain.Dtos.Helios.Api;
@@ -36,7 +38,7 @@ namespace Helios.Api.Utils.Api.Helios
         private void CheckTokenExpiration()
         {
             // TODO: Refactor this stub
-            bool isTokenExpired = RetrieveEvents().Result.Contains("Authorization has been denied for this request");
+            bool isTokenExpired = RetrieveEventsJson().Result.Contains("Authorization has been denied for this request");
             if (isTokenExpired)
             {
                 throw new Exception("Helios access_token has expired");
@@ -45,9 +47,9 @@ namespace Helios.Api.Utils.Api.Helios
 
         #region User
 
-        public Task<HeliosTokenResponceDto> RetrieveToken()
+        public Task<HeliosTokenResponceDto> RetrieveToken(string AESKey)
         {
-            var passwordOrigin = AesStringEncryptor.DecryptString(_user.HeliosPassword, "E546C8DF278CD5931069B522E695D4F2");
+            var passwordOrigin = AesStringEncryptor.DecryptString(_user.HeliosPassword, AESKey);
 
             var client = new RestClient("https://helios-api.gunnebocloud.com/auth/connect/token");
             var request = new RestRequest(Method.POST);
@@ -86,7 +88,47 @@ namespace Helios.Api.Utils.Api.Helios
 
         #region Events
 
-        public Task<string> RetrieveEvents()
+        public Task<IList<HeliosEvent>> RetrieveEvents()
+        {
+            var body = new JObject();
+            body["EntityID"] = _user.EntityId;
+
+            var parameter = new JObject();
+            parameter["Name"] = "Schedule";
+
+            var arr = new JArray();
+            arr.Add(parameter);
+
+            body["Parameters"] = arr;
+
+            var client = new RestClient($"{_apiBaseUrl}/webservices/api/Entity/GetPolicy");
+            var request = new RestRequest(Method.POST);
+            request.AddHeader("cache-control", "no-cache");
+            request.AddHeader("content-type", "application/json");
+            request.AddHeader("authorization", $"Bearer {_user.HeliosToken}");
+            request.AddParameter("application/json", body.ToString(), ParameterType.RequestBody);
+
+            var tcs = new TaskCompletionSource<IList<HeliosEvent>>();
+            client.ExecuteAsync(request, response =>
+            {
+                var eventsRootDto = JsonConvert.DeserializeObject<List<HeliosEventsRootDto>>(response.Content)
+                    .FirstOrDefault();
+
+                if (eventsRootDto?.Value == null)
+                {
+                    tcs.SetResult(new List<HeliosEvent>());
+                }
+                else
+                {
+                    tcs.SetResult(JsonConvert.DeserializeObject<List<HeliosEvent>>(eventsRootDto.Value));
+                }
+
+            });
+
+            return tcs.Task;
+        }
+
+        public Task<string> RetrieveEventsJson()
         {
             /* Compose Body */
             var body = new JObject();
@@ -140,7 +182,7 @@ namespace Helios.Api.Utils.Api.Helios
 
         #region Tasks
 
-        public Task<string> CreateTask(HeliosTaskToCreate task)
+        public Task<HeliosTask> CreateTask(HeliosTaskToCreate task)
         {
             var client = new RestClient("https://helios-api.gunnebocloud.com/task/api/Task/create");
             var request = new RestRequest(Method.POST);
@@ -149,10 +191,12 @@ namespace Helios.Api.Utils.Api.Helios
             request.AddHeader("authorization", "Bearer " + _user.HeliosToken);
             request.AddParameter("application/json", JsonConvert.SerializeObject(task), ParameterType.RequestBody);
 
-            var tcs = new TaskCompletionSource<string>();
+            var tcs = new TaskCompletionSource<HeliosTask>();
             client.ExecuteAsync(request, response =>
             {
-                tcs.SetResult(response.Content);
+                var createdTask = RetrieveTasks().Result.First(r => r.Subject == task.Subject && r.Body == task.Body);
+
+                tcs.SetResult(createdTask);
             });
 
             return tcs.Task;
@@ -208,7 +252,7 @@ namespace Helios.Api.Utils.Api.Helios
             return tcs.Task;
         }
 
-        public Task<string> CompleteTask(string taskId, string apiKey)
+        private Task<string> CompleteTaskInner(string taskId, string apiKey)
         {
             var client = new RestClient("https://helios-api.gunnebocloud.com/task/api/Task/complete");
             var request = new RestRequest(Method.POST);
@@ -225,7 +269,7 @@ namespace Helios.Api.Utils.Api.Helios
             return tcs.Task;
         }
 
-        public Task<string> RejectTask(string taskId, string apiKey)
+        private Task<string> RejectTaskInner(string taskId, string apiKey)
         {
             var client = new RestClient("https://helios-api.gunnebocloud.com/task/api/Task/reject");
             var request = new RestRequest(Method.POST);
@@ -240,6 +284,18 @@ namespace Helios.Api.Utils.Api.Helios
             });
 
             return tcs.Task;
+        }
+
+        public void CompleteTask(string taskId, string apiKey)
+        {
+            var acceptResult = AcceptTask(taskId, apiKey).Result;
+            var completeResult = CompleteTaskInner(taskId, apiKey).Result;
+        }
+
+        public void RejectTask(string taskId, string apiKey)
+        {
+            var acceptResult = AcceptTask(taskId, apiKey).Result;
+            var completeResult = RejectTaskInner(taskId, apiKey).Result;
         }
 
         #endregion

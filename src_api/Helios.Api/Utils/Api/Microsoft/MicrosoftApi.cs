@@ -9,6 +9,7 @@ using Helios.Api.Domain.Dtos.Microsoft.Api.Tasks;
 using Helios.Api.Domain.Entities.MainModule;
 using Helios.Api.Domain.Entities.PluginModule.Helios;
 using Helios.Api.Domain.Entities.PluginModule.Microsoft;
+using Helios.Api.Domain.Extensions;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -21,23 +22,11 @@ namespace Helios.Api.Utils.Api.Microsoft
     public class MicrosoftApi : IMicrosoftApi
     {
         private readonly User _user;
-        private readonly string _clientId;
-        private readonly string _clientSecret;
-        private readonly string _redirectUrl;
-        private readonly IConfigurationRoot _configuration;
 
         public MicrosoftApi(User user, bool isTokenNeeded)
         {
-            _configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json").Build();
-                //.AddJsonFile("C:\\Data\\Sources\\HeliosOutlookAddid\\src_api\\Helios.Api\\appsettings.json").Build(); //TODO: uncomment for local run
-
             _user = user;
-            _clientId = "cd1488fa-849d-4f93-8558-f85ca902cf61";
-            _clientSecret = "scY9Ymn7jtGWdfvWiiedUmq";
-            _redirectUrl = _configuration["MicrosoftRedirectUrl"];
-            
+
             if (isTokenNeeded)
             {
                 CheckTokenExpiration();
@@ -73,17 +62,17 @@ namespace Helios.Api.Utils.Api.Microsoft
             return tcs.Task;
         }
 
-        public Task<MicrosoftRefreshTokenByCodeDto> GetRefreshTokenByCode(string code)
+        public Task<MicrosoftRefreshTokenByCodeDto> GetRefreshTokenByCode(string code, string clientId, string clientSecret, string redirectUrl)
         {
             var client = new RestClient("https://login.microsoftonline.com/common/oauth2/v2.0/token");
             var request = new RestRequest(Method.POST);
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
 
             var qb = new QueryBuilder();
-            qb.Add("client_id", _clientId);
-            qb.Add("redirect_uri", _redirectUrl);
+            qb.Add("client_id", clientId);
+            qb.Add("redirect_uri", redirectUrl);
             qb.Add("grant_type", "authorization_code");
-            qb.Add("client_secret", _clientSecret);
+            qb.Add("client_secret", clientSecret);
             qb.Add("code", code);
             var query = qb.ToQueryString().ToString().Substring(1);
 
@@ -197,17 +186,17 @@ namespace Helios.Api.Utils.Api.Microsoft
             return tcs.Task;
         }
 
-        public Task<string> RetrieveEvents(string calendarId)
+        public Task<IList<OutlookEvent>> RetrieveEvents(string calendarId)
         {
             var client = new RestClient("https://graph.microsoft.com/v1.0/me/calendars/" + calendarId + "/events?%24expand=singleValueExtendedProperties(%24filter%3Did%20eq%20'String%20%7B66f5a359-4659-4830-9070-00040ec6ac6e%7D%20Name%20Helios')");
             var request = new RestRequest(Method.GET);
             request.AddHeader("cache-control", "no-cache");
             request.AddHeader("authorization", $"Bearer {_user.MicrosoftToken}");
 
-            var tcs = new TaskCompletionSource<string>();
+            var tcs = new TaskCompletionSource<IList<OutlookEvent>>();
             client.ExecuteAsync(request, response =>
             {
-                tcs.SetResult(response.Content);
+                tcs.SetResult(JsonConvert.DeserializeObject<MicrosoftEventsRootDto>(response.Content).Value);
             });
 
             return tcs.Task;
@@ -291,15 +280,14 @@ namespace Helios.Api.Utils.Api.Microsoft
         #endregion
 
         #region Tasks
-
+        
         public Task<OutlookTask> CreateTask(string folderId, OutlookTask task)
         {
             CheckTokenExpiration();
-            var json = Newtonsoft.Json.JsonConvert.SerializeObject(task);
+            var json = "{\n  \"subject\": \"" + task.Subject + "\",\n  \"body\": {\n    \"content\": \"" + task.Body.Content + "\",\n    \"contentType\": \"" + task.Body.ContentType + "\"\n  },\n  \"importance\": \"" + task.Importance + "\",\n  \"status\": \"" + task.Status + "\",\n  \n  \"dueDateTime\": {\n    \"dateTime\": \" " + task.DueDateTime.DateTime.Date + " \",\n    \"timeZone\": \"" + task.DueDateTime.TimeZone + "\"\n  }\n}";
 
             var client = new RestClient("https://graph.microsoft.com/beta/me/outlook/taskFolders/" + folderId + "/tasks");
             var request = new RestRequest(Method.POST);
-            request.AddHeader("cache-control", "no-cache");
             request.AddHeader("content-type", "application/json");
             request.AddHeader("authorization", $"Bearer {_user.MicrosoftToken}");
             request.AddParameter("application/json", json, ParameterType.RequestBody);
@@ -325,6 +313,16 @@ namespace Helios.Api.Utils.Api.Microsoft
             client.ExecuteAsync(request, response =>
             {
                 var dto = JsonConvert.DeserializeObject<MicrosoftTasksRootDto>(response.Content);
+
+                foreach (var outlookTask in dto.Value)
+                {
+                    outlookTask.Body.Content = outlookTask.Body.Content.HtmlToPlainText();
+                    if (outlookTask.DueDateTime == null)
+                    {
+                        outlookTask.DueDateTime = new TaskDueDateTime(new DateTime(), "UTC");
+                    }
+                }
+
                 tcs.SetResult(dto.Value);
             });
 
@@ -333,11 +331,14 @@ namespace Helios.Api.Utils.Api.Microsoft
 
         public Task<OutlookTask> UpdateTask(OutlookTask task)
         {
+            CheckTokenExpiration();
+            var json = "{\n  \"subject\": \"" + task.Subject + "\",\n  \"body\": {\n    \"content\": \"" + task.Body.Content + "\",\n    \"contentType\": \"" + task.Body.ContentType + "\"\n  },\n  \"importance\": \"" + task.Importance + "\",\n  \"status\": \"" + task.Status + "\",\n  \n  \"dueDateTime\": {\n    \"dateTime\": \" " + task.DueDateTime.DateTime.Date + " \",\n    \"timeZone\": \"" + task.DueDateTime.TimeZone + "\"\n  }\n}";
+
             var client = new RestClient("https://graph.microsoft.com/beta/me/outlook/tasks('" + task.Id + "')");
             var request = new RestRequest(Method.PATCH);
             request.AddHeader("content-type", "application/json");
             request.AddHeader("authorization", $"Bearer {_user.MicrosoftToken}");
-            request.AddParameter("application/json", JsonConvert.SerializeObject(task), ParameterType.RequestBody);
+            request.AddParameter("application/json", json, ParameterType.RequestBody);
 
             var tcs = new TaskCompletionSource<OutlookTask>();
             client.ExecuteAsync(request, response =>
