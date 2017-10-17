@@ -6,6 +6,7 @@ $msdeployArguments = '-verb:sync',
 		'-skip:Directory="node_modules"',
 		'-AllowUntrusted'
 
+npm install gulp -g
 Set-Location C:\Data\Sources\HeliosOutlookAddid\src_addin
 npm install
 gulp build_debug
