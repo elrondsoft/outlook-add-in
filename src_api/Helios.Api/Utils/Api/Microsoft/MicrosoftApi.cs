@@ -196,7 +196,28 @@ namespace Helios.Api.Utils.Api.Microsoft
             var tcs = new TaskCompletionSource<IList<OutlookEvent>>();
             client.ExecuteAsync(request, response =>
             {
-                tcs.SetResult(JsonConvert.DeserializeObject<MicrosoftEventsRootDto>(response.Content).Value);
+
+                IList<OutlookEvent> eventsList = JsonConvert.DeserializeObject<MicrosoftEventsRootDto>(response.Content).Value;
+
+                foreach (var outlookEvent in eventsList)
+                {
+                    if (outlookEvent.Body == null)
+                    {
+                        outlookEvent.Body = new EventBody("Text", "");
+                    }
+                    if (outlookEvent.Start == null)
+                    {
+                        outlookEvent.Start = new EventDateTime(new DateTime(), "UTC");
+                    }
+                    if (outlookEvent.End == null)
+                    {
+                        outlookEvent.End = new EventDateTime(new DateTime(), "UTC");
+                    }
+
+                    outlookEvent.Body.Content = outlookEvent.Body.Content.HtmlToPlainText();
+                }
+
+                tcs.SetResult(eventsList);
             });
 
             return tcs.Task;
